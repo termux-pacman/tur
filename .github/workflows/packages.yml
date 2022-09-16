@@ -75,13 +75,13 @@ jobs:
             CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "${BASE_COMMIT}" "HEAD")
           fi
         fi
-        mkdir -p ./artifacts ./debs
-        touch ./debs/.placeholder
+        mkdir -p ./artifacts ./pkgs
+        touch ./pkgs/.placeholder
         if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
           # Process tag '%ci:no-build' that may be added as line to commit message.
           # Forces CI to cancel current build with status 'passed'
           if grep -qiP '^\s*%ci:no-build\s*$' <(git log --format="%B" -n 1 "HEAD"); then
-            tar cf artifacts/debs-${{ matrix.target_arch }}.tar debs
+            tar cf artifacts/pkgs-${{ matrix.target_arch }}.tar pkgs
             echo "[!] Force exiting as tag '%ci:no-build' was applied to HEAD commit message."
             exit 0
           fi
@@ -193,44 +193,90 @@ jobs:
           fi
         done
         if [ ! -z "$packages" ]; then
-          ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
+          ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} --format pacman $packages
         fi
     - name: Generate build artifacts
       if: always()
       run: |
         test -d tur/output && mv tur/output/* ./output/
         for repo in $(jq --raw-output '.[].name' repo.json); do
-          # Put package lists into directory with *.deb files so they will be transferred to
+          # Put package lists into directory with *.pkg.* files so they will be transferred to
           # upload job.
-          test -f ./built_${repo}_packages.txt && mv ./built_${repo}_packages.txt ./debs/
-          test -f ./built_${repo}_subpackages.txt && cat ./built_${repo}_subpackages.txt >> ./debs/built_${repo}_packages.txt \
+          test -f ./built_${repo}_packages.txt && mv ./built_${repo}_packages.txt ./pkgs/
+          test -f ./built_${repo}_subpackages.txt && cat ./built_${repo}_subpackages.txt >> ./pkgs/built_${repo}_packages.txt \
             && rm ./built_${repo}_subpackages.txt
-          test -f ./deleted_${repo}_packages.txt && mv ./deleted_${repo}_packages.txt ./debs/
-          # Move only debs from built_packages into debs/ folder before
+          test -f ./deleted_${repo}_packages.txt && mv ./deleted_${repo}_packages.txt ./pkgs/
+          # Move only pkgs from built_packages into pkgs/ folder before
           # creating an archive.
           while read -r pkg; do
-            # Match both $pkg.deb and $pkg-static.deb.
-            find output \( -name "$pkg_*.deb" -o -name "$pkg-static_*.deb" \) -type f -print0 | xargs -0r mv -t debs/
-          done < <(cat ./debs/built_${repo}_packages.txt)
+            # Match both $pkg.pkg.* and $pkg-static.pkg.*.
+            find output \( -name "$pkg_*.pkg.*" -o -name "$pkg-static_*.pkg.*" \) -type f -print0 | xargs -0r mv -t pkgs/
+          done < <(cat ./pkgs/built_${repo}_packages.txt)
         done
         # Files containing certain symbols (e.g. ":") will cause failure in actions/upload-artifact.
-        # Archiving *.deb files in a tarball to avoid issues with uploading.
-        tar cf artifacts/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar debs
-    - name: Checksums for built *.deb files
+        # Archiving *.pkg.* files in a tarball to avoid issues with uploading.
+        tar cf artifacts/pkgs-${{ matrix.target_arch }}-${{ github.sha }}.tar pkgs
+    - name: Checksums for built *.pkg.* files
       if: always()
       run: |
-        find debs -type f -name "*.deb" -exec sha256sum "{}" \; | sort -k2
-    - name: Store *.deb files
+        find pkgs -type f -name "*.pkg.*" -exec sha256sum "{}" \; | sort -k2
+    - name: Store *.pkg.* files
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: debs-${{ matrix.target_arch }}-${{ github.sha }}
+        name: pkgs-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./artifacts
-    - name: Upload to temporary release.
-      if: github.event_name != 'pull_request'
-      run: | 
-          for i in ./artifacts/*;do
-            gh release upload -R https://github.com/termux-user-repository/tur "0.1" $i
-            echo "$i  uploaded"
+
+  upload:
+    permissions:
+      contents: read
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v3
+    - name: Get *.pkg.* files
+      uses: actions/download-artifact@v3
+      with:
+        path: ./
+    - name: Install aws-cli
+      run: |
+        git clone https://github.com/termux-pacman/aws-cli-action.git
+        ./aws-cli-action/setup.sh '${{ secrets.AWS_ACCESS_KEY_ID }}' '${{ secrets.AWS_ACCESS_KEY }}' '${{ secrets.AWS_REGION }}'
+    - name: Import GPG key
+      run: |
+        echo '${{ secrets.SF_GPG_BOT }}' > key.gpg
+        gpg --pinentry-mode=loopback --passphrase '${{ secrets.PW_GPG_BOT }}' --import key.gpg > /dev/null
+    - name: Uploading packages to aws
+      run: |
+        source ./aws-cli-action/func.sh
+        sfuf() {
+          gpg --batch --pinentry-mode=loopback --passphrase '${{ secrets.PW_GPG_BOT }}' --detach-sign --use-agent -u '${{ secrets.KEY_GPG_BOT }}' --no-armor "$1"
+          for upl_file in "$1" "$1.sig"; do
+            aws s3 cp $upl_file s3://termux-pacman.us/${repo#*-}/${file_sp[1]}/$upl_file
           done
-  
+        }
+        for archive in pkgs-*/pkgs-{aarch64,arm,i686,x86_64}-${{ github.sha }}.tar; do
+          dir_sp=(${archive//// })
+          file_sp=(${dir_sp[-1]//-/ })
+          tar xf "$archive"
+          for repo in $(jq --raw-output '.[].name' repo.json); do
+            dp_file="./pkgs/deleted_${repo}_packages.txt"
+            if [[ -f $dp_file ]]; then
+              sfuf "$dp_file"
+            fi
+            for name_pkg in $(cat ./pkgs/built_${repo}_packages.txt); do
+              for list_pkg in pkgs/*.pkg.*; do
+                if [[ ! -f "$list_pkg.sig" ]]; then
+                  dir_pkg_sp=(${list_pkg//// })
+                  if [[ $(echo $name_pkg | sed 's/+/0/g') = $(get_name ${dir_pkg_sp[-1]}) ]]; then
+                    sfuf "$list_pkg"
+                    break
+                  fi
+                fi
+              done
+            done
+          done
+          rm -fr ./pkgs
+        done
