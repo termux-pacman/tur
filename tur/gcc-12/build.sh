@@ -107,4 +107,3 @@ termux_step_post_make_install() {
 	# XXX: `ndk-sysroot-gcc-compact` and `gcc`, and then install `ndk-sysroot` manually.
 	TERMUX_PKG_DEPENDS+=", ndk-sysroot-gcc-compact"
 }
-
