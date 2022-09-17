@@ -75,4 +75,3 @@ termux_step_create_debscripts() {
 	sed -i "/\.\/${_KIVY_EGGDIR//./\\.}/d" $TERMUX_PREFIX/lib/python${_PYTHON_VERSION}/site-packages/easy-install.pth
 	EOF
 }
-
