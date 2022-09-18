@@ -14,3 +14,4 @@ termux_step_pre_configure() {
 	_setup_toolchain_ndk_r17c_gcc_11
 	_override_configure_cmake_for_gcc
 }
+
