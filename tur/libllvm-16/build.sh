@@ -165,4 +165,3 @@ termux_step_post_make_install() {
 	ln -sfr $_INSTALL_PREFIX/lib/libLLVM-16.so $TERMUX_PREFIX/lib/
 	ln -sfr $_INSTALL_PREFIX/lib/libLLVMgit-16.so $TERMUX_PREFIX/lib/
 }
-
