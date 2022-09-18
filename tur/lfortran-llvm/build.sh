@@ -52,4 +52,3 @@ termux_step_post_make_install() {
 	mkdir -p $PREFIX/share/lfortran/lib/impure
 	cp ${TERMUX_PKG_SRCDIR}/src/runtime/impure/lfortran_intrinsics.h $PREFIX/share/lfortran/lib/impure
 }
-
