@@ -29,4 +29,3 @@ termux_step_make_install() {
 	install -Dm600 libandroid-nl-types.a $TERMUX_PREFIX/lib/libandroid-nl-types.a
 	install -Dm600 libandroid-nl-types.so $TERMUX_PREFIX/lib/libandroid-nl-types.so
 }
-
