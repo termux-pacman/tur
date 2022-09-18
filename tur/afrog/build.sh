@@ -29,3 +29,4 @@ termux_step_create_debscripts() {
 	rm -rf $HOME/.config/afrog
 	EOF
 }
+
