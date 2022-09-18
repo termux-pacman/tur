@@ -105,3 +105,4 @@ termux_step_post_make_install() {
 	ln -sfr $_INSTALL_PREFIX/bin/ld.lld $TERMUX_PREFIX/bin/ld.lld-10
 	ln -sfr $_INSTALL_PREFIX/lib/libLLVM-10.so $TERMUX_PREFIX/lib/
 }
+
