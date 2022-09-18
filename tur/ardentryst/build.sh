@@ -32,4 +32,3 @@ termux_step_pre_configure(){
 	cp -R * $TERMUX_PREFIX/share/games/ardentryst
 
 }
-
