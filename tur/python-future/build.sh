@@ -24,3 +24,4 @@ termux_step_pre_configure() {
 termux_step_make_install() {
 		python setup.py install --force --prefix $TERMUX_PREFIX
 }
+
