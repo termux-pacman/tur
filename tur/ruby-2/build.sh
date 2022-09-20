@@ -98,3 +98,4 @@ termux_step_post_massage() {
 		echo "Error: The readline extension was not built"
 	fi
 }
+
