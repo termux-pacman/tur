@@ -35,3 +35,4 @@ termux_step_post_make_install() {
     rm -rf lib/python${_PYTHON_VERSION}/site-packages/site.py
     popd
 }
+
