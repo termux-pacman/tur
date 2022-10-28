@@ -13,3 +13,4 @@ termux_step_pre_configure(){
 	cd src
 	make install
 }
+
