@@ -34,7 +34,7 @@ jobs:
         info "Get list pkg"
         cd ../tur-pacman
         list_files=""
-        for i in $(git status -s tur tur-hacking | awk '{print $2}'); do
+        for i in $(git status -s tur tur-hacking tur-continuous | awk '{print $2}'); do
           dir_sp=(${i//// })
           if [[ ! $(echo "$list_files" | grep "${dir_sp[0]}/${dir_sp[1]} ") ]]; then
             list_files+="${dir_sp[0]}/${dir_sp[1]} "
@@ -84,7 +84,7 @@ jobs:
         git remote set-url origin "https://termux-pacman-bot:${{ secrets.TOKEN }}@github.com/termux-pacman/tur.git"
         commit "Update system repo"
         git add .
-        git reset tur tur-hacking README.md
+        git reset tur tur-hacking tur-continuous README.md
         {
           git commit -m "Update repo"
           git push origin master
