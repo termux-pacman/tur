@@ -489,7 +489,7 @@ jobs:
     permissions:
       contents: read
     if: github.event_name != 'pull_request'
-    needs: build
+    needs: finished-build
     runs-on: ubuntu-latest
     steps:
     - name: Clone repository
