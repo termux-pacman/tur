@@ -22,11 +22,9 @@ on:
     - master
     paths:
     - 'tur/**'
-    - 'tur-hacking/**'
   pull_request:
     paths:
     - 'tur/**'
-    - 'tur-hacking/**'
   workflow_dispatch:
     inputs:
       packages:
