@@ -2,9 +2,15 @@
 [More about the repository](https://github.com/termux-user-repository/tur/blob/master/README.md)
 
 ### Code for connecting repository:
+tur:
 ```
 [tur]
 Server = https://s3.amazonaws.com/termux-pacman.us/tur/$arch
+```
+tur-continuous:
+```
+[tur-continuous]
+Server = https://s3.amazonaws.com/termux-pacman.us/tur-continuous/$arch
 ```
 
 ### Other information:
