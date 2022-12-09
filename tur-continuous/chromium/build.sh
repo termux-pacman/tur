@@ -343,4 +343,3 @@ termux_step_post_make_install() {
 # (8) Refator the GN files (Add a variant is_termux in the configure files)
 # (9) Figure out what packages in vulkan and mesa are actually needed
 # (10) Figure out why nacl cannot be enabled
-
