@@ -378,3 +378,4 @@ termux_step_post_make_install() {
 # But I don't think this is necessary. NaCl existing or not will take little 
 # influence on Chromium. So I'd like to disable NaCl.
 # #############################################################################
+
