@@ -5,12 +5,12 @@
 tur:
 ```
 [tur]
-Server = https://s3.amazonaws.com/termux-pacman.us/tur/$arch
+Server = https://service.termux-pacman.dev/tur/$arch
 ```
 tur-continuous:
 ```
 [tur-continuous]
-Server = https://s3.amazonaws.com/termux-pacman.us/tur-continuous/$arch
+Server = https://service.termux-pacman.dev/tur-continuous/$arch
 ```
 
 ### Other information:
