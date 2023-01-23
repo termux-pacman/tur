@@ -12,6 +12,11 @@ tur-continuous:
 [tur-continuous]
 Server = https://service.termux-pacman.dev/tur-continuous/$arch
 ```
+tur-multilib:
+```
+[tur-multilib]
+Server = https://service.termux-pacman.dev/tur-multilib/$arch
+```
 
 ### Other information:
  - Android support: 7+
