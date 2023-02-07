@@ -47,3 +47,4 @@ termux_step_post_make_install() {
 		ln -sfr $_INSTALL_PREFIX/lib/$lib $TERMUX_PREFIX/lib/$lib
 	done
 }
+

@@ -27,3 +27,4 @@ termux_step_post_make_install() {
 	install -Ddm700 "$TERMUX_PREFIX"/share/man/man1
 	install -pm600 -t "$TERMUX_PREFIX/share/man/man1" "$TERMUX_PKG_SRCDIR"/src/pixz.1
 }
+
