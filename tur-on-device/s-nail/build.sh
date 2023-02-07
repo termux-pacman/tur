@@ -50,4 +50,3 @@ termux_step_post_make_install() {
 	cp -v README NEWS THANKS -t "$TERMUX_PREFIX/share/doc/$TERMUX_PKG_NAME"
 	mv -vt "$TERMUX_PREFIX/share/doc/$TERMUX_PKG_NAME" "$TERMUX_PREFIX/etc/$TERMUX_PKG_NAME.rc"
 }
-
