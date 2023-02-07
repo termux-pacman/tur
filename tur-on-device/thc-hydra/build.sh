@@ -6,4 +6,3 @@ TERMUX_PKG_VERSION="9.3"
 TERMUX_PKG_SRCURL=git+https://github.com/vanhauser-thc/thc-hydra
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_DEPENDS="libidn, libgcrypt, libssh, libssh2, openssl, openssl-1.1, pcre, pcre2, zlib"
-
