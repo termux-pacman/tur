@@ -184,7 +184,7 @@ jobs:
         done
         sudo chown -R 1000:1000 $(pwd)
         if [ ! -z "$packages" ]; then
-          ./common-files/build-termux-docker.sh login ./build-package.sh -I $packages
+          ./common-files/build-termux-docker.sh login ./build-package.sh --format pacman -I $packages
         fi
     - name: Generate build artifacts
       if: always()
@@ -360,7 +360,7 @@ jobs:
         done
         sudo chown -R 1000:1000 $(pwd)
         if [ ! -z "$packages" ]; then
-          ./common-files/build-termux-docker.sh login ./build-package.sh -I $packages
+          ./common-files/build-termux-docker.sh login ./build-package.sh --format pacman -I $packages
         fi
     - name: Clean up docker containers
       env:
