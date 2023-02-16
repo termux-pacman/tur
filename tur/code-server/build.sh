@@ -99,4 +99,3 @@ exec $TERMUX_PREFIX/lib/code-server/bin/code-server "\$@"
 EOF
 	chmod +x $TERMUX_PREFIX/bin/code-server
 }
-
