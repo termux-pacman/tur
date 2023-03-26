@@ -3,19 +3,31 @@
 
 ### Code for connecting repository:
 tur:
-```
+<!--```
 [tur]
 Server = https://service.termux-pacman.dev/tur/$arch
+```-->
+```
+[tur]
+Server = https://s3.amazonaws.com/termux-pacman.us/tur/$arch
 ```
 tur-continuous:
-```
+<!--```
 [tur-continuous]
 Server = https://service.termux-pacman.dev/tur-continuous/$arch
+```-->
+```
+[tur-continuous]
+Server = https://s3.amazonaws.com/termux-pacman.us/tur-continuous/$arch
 ```
 tur-multilib:
-```
+<!--```
 [tur-multilib]
 Server = https://service.termux-pacman.dev/tur-multilib/$arch
+```-->
+```
+[tur-multilib]
+Server = https://s3.amazonaws.com/termux-pacman.us/tur-multilib/$arch
 ```
 
 ### Other information:
