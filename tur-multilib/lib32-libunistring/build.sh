@@ -28,3 +28,4 @@ share/man
 termux_step_pre_configure() {
 	_setup_multilib_toolchain
 }
+

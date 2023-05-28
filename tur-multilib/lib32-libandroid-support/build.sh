@@ -38,3 +38,5 @@ termux_step_make_install() {
 	install -Dm600 libandroid-support.a $TERMUX_PREFIX/$TUR_MULTILIB_ARCH_TRIPLE/lib/libandroid-support.a
 	install -Dm600 libandroid-support.so $TERMUX_PREFIX/$TUR_MULTILIB_ARCH_TRIPLE/lib/libandroid-support.so
 }
+
+
