@@ -28,4 +28,3 @@ echo "INFO: Also you can get the APK from '"$SELEDROID_APK"'"
 ' \
 	> postinst
 }
-
