@@ -18,4 +18,3 @@ termux_step_post_make_install() {
 	install -m700 -t "$TERMUX_PREFIX"/lib/$TUR_MULTILIB_ARCH_TRIPLE \
 		toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/"${TUR_MULTILIB_ARCH_TRIPLE}"/libc++_shared.so
 }
-
