@@ -21,4 +21,3 @@ termux_step_make_install() {
 	pip3 install . --prefix $TERMUX_PREFIX
 	unset SELENIUM_PKG_VERSION SELENIUM_PKG_DESCRIPTION
 }
-
