@@ -3,31 +3,19 @@
 
 ### Code for connecting repository:
 tur:
-<!--```
+```
 [tur]
 Server = https://service.termux-pacman.dev/tur/$arch
-```-->
-```
-[tur]
-Server = https://s3.amazonaws.com/termux-pacman.us/tur/$arch
 ```
 tur-continuous:
-<!--```
+```
 [tur-continuous]
 Server = https://service.termux-pacman.dev/tur-continuous/$arch
-```-->
-```
-[tur-continuous]
-Server = https://s3.amazonaws.com/termux-pacman.us/tur-continuous/$arch
 ```
 tur-multilib:
-<!--```
-[tur-multilib]
-Server = https://service.termux-pacman.dev/tur-multilib/$arch
-```-->
 ```
 [tur-multilib]
-Server = https://s3.amazonaws.com/termux-pacman.us/tur-multilib/$arch
+Server = https://service.termux-pacman.dev/tur-multilib/$arch
 ```
 
 ### Other information:
@@ -35,7 +23,7 @@ Server = https://s3.amazonaws.com/termux-pacman.us/tur-multilib/$arch
  - Architecture support: all (aarch64, arm, x86_64, i686)
  - Security level: full (db and packages are protected by signature)
  - Signature: termux-pacman organization gpg key
- - Storage: aws s3 (US)
+ - Powered by aws
  - Mirrors: does not exist
  - Root repository: https://github.com/termux-user-repository/tur
  - Organization maintaining the root repository: [termux-user-repository](https://github.com/termux-user-repository)
