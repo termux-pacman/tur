@@ -1,4 +1,4 @@
-# Termux User Repository (TUR) for pacman - official support
+# Termux User Repository (TUR) for pacman - official git repo mirror
 [More about the repository](https://github.com/termux-user-repository/tur/blob/master/README.md)
 
 ### Code for connecting repository:
