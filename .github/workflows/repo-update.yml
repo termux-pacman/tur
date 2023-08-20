@@ -89,7 +89,7 @@ jobs:
         git remote set-url origin "https://termux-pacman-bot:${{ secrets.TOKEN }}@github.com/termux-pacman/tur.git"
         commit "Update system repo"
         git add .
-        git reset tur tur-hacking tur-continuous tur-multilib tur-on-device README.md
+        git reset tur tur-hacking tur-continuous tur-multilib tur-on-device README.md SECURITY.md
         {
           git commit -m "Update repo"
           git push origin master
