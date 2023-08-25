@@ -45,3 +45,4 @@ termux_step_configure() {
 			;;
 	esac > $TERMUX_PKG_SRCDIR/config.h
 }
+
