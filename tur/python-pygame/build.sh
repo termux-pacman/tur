@@ -24,4 +24,3 @@ termux_step_pre_configure() {
 
 	LDFLAGS+=" -lpython${TERMUX_PYTHON_VERSION}"
 }
-
