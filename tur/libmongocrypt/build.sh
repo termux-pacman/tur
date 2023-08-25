@@ -31,4 +31,3 @@ termux_step_pre_configure() {
 termux_step_post_make_install() {
 	rm $TERMUX_PREFIX/lib/libresolv.a
 }
-
