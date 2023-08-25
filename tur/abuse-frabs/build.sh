@@ -34,4 +34,3 @@ exec $TERMUX_PREFIX/bin/abuse -datadir $TERMUX_PREFIX/share/games/abuse-frabs "\
 EOF
 	chmod +x $TERMUX_PREFIX/bin/abuse-frabs
 }
-
