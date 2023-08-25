@@ -408,7 +408,6 @@ jobs:
     permissions:
       contents: read
     if: github.event_name != 'pull_request'
-    needs: finished-build
     runs-on: ubuntu-latest
     strategy:
       matrix:
