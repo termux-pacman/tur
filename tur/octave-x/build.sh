@@ -79,4 +79,3 @@ termux_step_pre_configure() {
 	# for Qt-GUI
 	#export PATH+=":${TERMUX_PREFIX}/opt/qt/cross/bin"
 }
-
