@@ -110,3 +110,4 @@ EOF
 	# Remove the dummy librt.so
 	rm -f $TERMUX_PREFIX/lib/librt.so
 }
+

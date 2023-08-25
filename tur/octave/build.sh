@@ -69,3 +69,4 @@ termux_step_pre_configure() {
 	fi
 	export LIBS="-landroid-glob -L$TERMUX_PKG_BUILDDIR $TERMUX_PKG_BUILDDIR/libunwind.a $TERMUX_PKG_BUILDDIR/libgfortran.a $LIBQUADMATH $TERMUX_PKG_BUILDDIR/libgcc.a"
 }
+
