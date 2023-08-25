@@ -169,4 +169,3 @@ termux_step_make_install() {
 	cp ../VSCode-linux-$CODE_ARCH/resources/app/LICENSE.txt $TERMUX_PREFIX/share/doc/code-oss/LICENSE
 	cp ../VSCode-linux-$CODE_ARCH/resources/app/ThirdPartyNotices.txt $TERMUX_PREFIX/share/doc/code-oss/ThirdPartyNotices.txt
 }
-
