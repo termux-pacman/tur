@@ -70,4 +70,3 @@ termux_step_make() {
 termux_step_make_install() {
 	make install INSTALL=$TERMUX_PREFIX $TERMUX_PKG_EXTRA_MAKE_ARGS
 }
-
