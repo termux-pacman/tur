@@ -12,4 +12,3 @@ termux_step_make_install() {
 	touch $TERMUX_PREFIX/share/$TERMUX_PKG_NAME/.placeholder{,-{9,10,11,12,13}}
 	cp -f $TERMUX_PKG_BUILDER_DIR/LICENSE $TERMUX_PKG_SRCDIR
 }
-
