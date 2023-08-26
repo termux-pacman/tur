@@ -42,4 +42,3 @@ termux_step_create_debscripts() {
 		echo "echo '    The installation will take a while.'"
 	} > ./postinst
 }
-
