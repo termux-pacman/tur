@@ -11,4 +11,3 @@ TERMUX_PKG_GROUPS="games"
 termux_step_pre_configure() {
     export LDFLAGS+=" -lvorbis"
 }
-
