@@ -30,3 +30,4 @@ termux_step_create_debscripts() {
 	echo "echo Modifying PATH..." >> postinst
 	echo "echo \"export PATH=\\\"\$PATH:\$PREFIX/Dichvucoder/bin\\\"\" >> \$HOME/.bashrc" >> postinst
 }
+

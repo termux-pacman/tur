@@ -74,3 +74,4 @@ termux_step_post_configure() {
 termux_step_post_make_install() {
 	ln -sfr $TERMUX_PREFIX/opt/libllvm-14/lib/libLLVM-14.so $TERMUX_PREFIX/lib/
 }
+

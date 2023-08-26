@@ -27,3 +27,4 @@ termux_step_make_install() {
 			SYSCONFDIR="$PREFIX/etc" \
 			RUNSTATEDIR="$PREFIX/var/run"
 }
+

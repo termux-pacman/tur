@@ -87,3 +87,4 @@ termux_step_post_make_install() {
 		ln -sfr $f $TERMUX_PREFIX/bin/"$(basename $f)"5.1
 	done
 }
+
