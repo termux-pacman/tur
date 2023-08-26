@@ -98,4 +98,3 @@ termux_step_post_make_install() {
 	# Avoid extract `ndk-sysroot-gcc-compact` at building time.
 	TERMUX_PKG_DEPENDS+=", ndk-sysroot-gcc-compact"
 }
-
