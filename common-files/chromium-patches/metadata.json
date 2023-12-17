@@ -32,6 +32,9 @@
     "start": 5672,
     "end": 5775
   },
+  "avoid-emplace_back-struct/5938.patch": {
+    "start": 5938
+  },
   "blink-fix-narrowing/5511.patch": {
     "start": 5481,
     "end": 5537
@@ -45,7 +48,11 @@
     "end": 5789
   },
   "blink-fix-structured-binding-declaration/5790.patch": {
-    "start": 5790
+    "start": 5790,
+    "end": 5937
+  },
+  "blink-fix-structured-binding-declaration/5938.patch": {
+    "start": 5938
   },
   "blink-font-constructor/5845.patch": {
     "start": 5845
@@ -260,7 +267,11 @@
     "end": 5844
   },
   "compiler-remove-unsupported-flags/5845.patch": {
-    "start": 5845
+    "start": 5845,
+    "end": 5937
+  },
+  "compiler-remove-unsupported-flags/5938.patch": {
+    "start": 5938
   },
   "compiler-use-android-target/4389.patch": {
     "start": 4389,
