@@ -46,7 +46,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -224,7 +224,7 @@ jobs:
         find pkgs -type f -name "*.pkg.*" -exec sha256sum "{}" \; | sort -k2
     - name: Store *.pkg.* files
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pkgs-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./artifacts
@@ -241,9 +241,9 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Get *.pkg.* files
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: ./
     - name: Install aws-cli

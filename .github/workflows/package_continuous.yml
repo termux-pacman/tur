@@ -44,7 +44,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -196,12 +196,12 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build deps
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -220,7 +220,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -233,12 +233,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -265,7 +265,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -284,7 +284,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -297,12 +297,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -329,7 +329,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -348,7 +348,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -361,12 +361,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -393,7 +393,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -412,7 +412,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -425,12 +425,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -457,7 +457,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -476,7 +476,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -489,12 +489,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -521,7 +521,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -540,7 +540,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -553,12 +553,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -585,7 +585,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -604,7 +604,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -617,12 +617,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -649,7 +649,7 @@ jobs:
       run: |
         tar cf build-status/${{ matrix.target_arch }}-${{ github.sha }}.tar ./*.txt ./pkgs ./artifacts ./output
     - name: Upload build status
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -667,7 +667,7 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1000
         submodules: true
@@ -680,7 +680,7 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build status
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -721,7 +721,7 @@ jobs:
         find pkgs -type f -name "*.pkg.*" -exec sha256sum "{}" \; | sort -k2
     - name: Store *.pkg.* files
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pkgs-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./artifacts
@@ -738,9 +738,9 @@ jobs:
       fail-fast: false
     steps:
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Get *.pkg.* files
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: ./
     - name: Install aws-cli
