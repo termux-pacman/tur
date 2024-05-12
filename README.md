@@ -1,4 +1,8 @@
 # Termux User Repository (TUR) for pacman - official git repo mirror
+![GitHub repo size](https://img.shields.io/github/repo-size/termux-pacman/tur)
+![Packages-tur last build status](https://github.com/termux-pacman/tur/workflows/Packages-tur/badge.svg)
+![Packages-tur-continuous last build status](https://github.com/termux-pacman/tur/workflows/Packages-tur-continuous/badge.svg)
+![Repo last update status](https://github.com/termux-pacman/tur/workflows/Update%20repo/badge.svg)  
 [More about the repository](https://github.com/termux-user-repository/tur/blob/master/README.md)
 
 ### Code for connecting repository:
@@ -24,6 +28,5 @@ Server = https://service.termux-pacman.dev/tur-multilib/$arch
  - Security level: full (db and packages are protected by signature)
  - Signature: termux-pacman organization gpg key
  - Powered by aws
- - Mirrors: does not exist
  - Root repository: https://github.com/termux-user-repository/tur
  - Organization maintaining the root repository: [termux-user-repository](https://github.com/termux-user-repository)
