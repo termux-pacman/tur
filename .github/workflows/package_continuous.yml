@@ -233,12 +233,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -297,12 +297,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -361,12 +361,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -425,12 +425,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -489,12 +489,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -553,12 +553,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -617,12 +617,12 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build deps
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-deps-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-deps
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -680,7 +680,7 @@ jobs:
         sudo apt autoremove -yq
         sudo rm -rf /opt/hostedtoolcache /usr/local /usr/share/dotnet /usr/share/swift
     - name: Download build status
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: build-status-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./build-status
@@ -740,7 +740,7 @@ jobs:
     - name: Clone repository
       uses: actions/checkout@v4
     - name: Get *.pkg.* files
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         path: ./
     - name: Install aws-cli
