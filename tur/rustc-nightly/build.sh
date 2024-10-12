@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.rust-lang.org
 TERMUX_PKG_DESCRIPTION="Rust compiler and utilities (nightly version)"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
-_RUST_VERSION=1.83.0
-_DATE="2024-09-27"
-TERMUX_PKG_VERSION="$_RUST_VERSION-${_DATE//-/.}-nightly"
+TERMUX_PKG_VERSION="1.83.0-2024.09.27-nightly"
+_RUST_VERSION=$(echo $TERMUX_PKG_VERSION | cut -d- -f1)
+_DATE="$(echo $TERMUX_PKG_VERSION | cut -d- -f2 | sed 's|\.|-|g')"
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
 _LLVM_MAJOR_VERSION_NEXT=$((_LLVM_MAJOR_VERSION + 1))
 _LZMA_VERSION=$(. $TERMUX_SCRIPTDIR/packages/liblzma/build.sh; echo $TERMUX_PKG_VERSION)
@@ -51,22 +51,8 @@ termux_pkg_auto_update() {
 		echo "Error: It seems that rustc-nightly version $latest_version is withdrawed."
 		exit 1
 	fi
-	echo "INFO: Updating from $TERMUX_PKG_VERSION to $latest_version"
 
-	local tmpdir
-	tmpdir="$(mktemp -d)"
-	curl -sLo "${tmpdir}/tmpfile" "https://static.rust-lang.org/dist/$latest_nightly_date/rustc-nightly-src.tar.xz"
-	local sha="$(sha256sum "${tmpdir}/tmpfile" | cut -d ' ' -f 1)"
-
-	sed \
-		-e "s|^_RUST_VERSION=.*|_RUST_VERSION=${latest_nightly_version}|" \
-		-e "s|^_DATE=.*|_DATE=${latest_nightly_date}|" \
-		-e "s|^TERMUX_PKG_SHA256=.*|TERMUX_PKG_SHA256=${sha}|" \
-		-i "${TERMUX_PKG_BUILDER_DIR}/build.sh"
-
-	rm -fr "${tmpdir}"
-
-	printf '%s\n' 'INFO: Generated checksums:' "${sha}"
+	termux_pkg_upgrade_version "$latest_version"
 }
 
 termux_step_post_get_source() {
