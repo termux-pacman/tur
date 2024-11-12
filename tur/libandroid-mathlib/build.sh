@@ -43,4 +43,3 @@ termux_step_make_install() {
 	install -Dm600 libandroid-mathlib.a $TERMUX_PREFIX/lib/libandroid-mathlib.a
 	install -Dm600 libandroid-mathlib.so $TERMUX_PREFIX/lib/libandroid-mathlib.so
 }
-
