@@ -24,4 +24,3 @@ termux_step_make () {
 termux_step_make_install () {
 	make install INSTALL_DIR="$TERMUX_PREFIX" CAIRO_INC=-I"$TERMUX_PREFIX"/include/cairo
 }
-
