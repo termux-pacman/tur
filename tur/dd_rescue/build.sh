@@ -39,3 +39,4 @@ termux_step_post_make_install() {
 	rm $TERMUX_PREFIX/share/man/man1/ddr_{crypt,lzo}.1* || :
 	rm $TERMUX_PREFIX/lib/libddr_{MD5,hash,crypt}.so || :
 }
+
