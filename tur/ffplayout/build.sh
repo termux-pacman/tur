@@ -49,3 +49,4 @@ termux_step_make_install() {
 	ln -sfr $TERMUX_PREFIX/opt/ffplayout/ffpapi $TERMUX_PREFIX/bin
 	ln -sfr $TERMUX_PREFIX/opt/ffplayout/ffplayout $TERMUX_PREFIX/bin
 }
+
