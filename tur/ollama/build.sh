@@ -21,3 +21,4 @@ termux_step_make() {
 termux_step_make_install() {
 	install -Dm700 ollama $TERMUX_PREFIX/bin/
 }
+
