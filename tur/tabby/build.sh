@@ -37,3 +37,4 @@ termux_step_make_install() {
 	install -Dm700 target/${CARGO_TARGET_NAME}/release/tabby $TERMUX_PREFIX/bin/
 	install -Dm700 target/${CARGO_TARGET_NAME}/release/llama-server $TERMUX_PREFIX/bin/
 }
+
