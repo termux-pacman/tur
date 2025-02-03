@@ -13,3 +13,4 @@ termux_step_make() {
 termux_step_make_install() {
 	install -Dm700 hello-tur-continuous $TERMUX_PREFIX/bin/hello-tur-continuous
 }
+
