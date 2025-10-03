@@ -34,4 +34,3 @@ termux_step_make_install() {
 	go run . completion fish > "${TERMUX_PREFIX}/share/fish/vendor_completions.d/${TERMUX_PKG_NAME}.fish"
 	install -Dm700 crush "$TERMUX_PREFIX/bin/crush"
 }
-
