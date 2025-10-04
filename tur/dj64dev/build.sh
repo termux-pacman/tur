@@ -23,4 +23,3 @@ termux_step_make() {
 	cd $TERMUX_PKG_SRCDIR
 	make
 }
-
