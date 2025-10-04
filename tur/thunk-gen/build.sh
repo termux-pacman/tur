@@ -54,4 +54,3 @@ termux_step_make() {
 termux_step_make_install() {
 	$TERMUX_MESON install -C $TERMUX_PKG_BUILDDIR
 }
-
