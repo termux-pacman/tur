@@ -26,3 +26,4 @@ termux_step_pre_configure() {
 	# switch off X plugin and use SDL instead
 	sed -i -E 's/^X$//' plugin_list
 }
+
