@@ -18,4 +18,3 @@ termux_step_host_build() {
 	make
 	make install
 }
-
