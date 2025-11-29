@@ -196,4 +196,3 @@ exec $TERMUX_PREFIX/opt/wine-staging/bin/wine "\$@"
 EOF
 	chmod +x $TERMUX_PREFIX/bin/wine-staging
 }
-
