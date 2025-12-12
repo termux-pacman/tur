@@ -188,3 +188,4 @@ termux_step_make_install() {
 	install -Dm700 ./bazel-bin/src/bazel_nojdk $TERMUX_PREFIX/bin/bazel-real
 	install -Dm700 ./bazel-bin/src/bazel_nojdk $TERMUX_PREFIX/bin/bazel-$TERMUX_PKG_VERSION
 }
+
