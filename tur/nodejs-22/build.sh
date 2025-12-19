@@ -136,4 +136,3 @@ termux_step_make_install() {
 		python tools/install.py install --dest-dir="" --prefix "$TERMUX_PREFIX/$_INSTALL_PREFIX" --build-dir out/Release/
 	fi
 }
-
