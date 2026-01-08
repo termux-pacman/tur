@@ -29,4 +29,3 @@ lib/libwpg-0.3.so
 		fi
 	done
 }
-
