@@ -18,3 +18,4 @@ termux_step_pre_configure() {
 	fi
 	export FITSIO_USE_SYSTEM_FITSIO=1
 }
+
