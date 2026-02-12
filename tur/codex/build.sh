@@ -33,3 +33,4 @@ termux_step_make_install() {
 	mkdir -p $TERMUX_PREFIX/share/doc/$TERMUX_PKG_NAME
 	cp -Rfv ../docs/* $TERMUX_PREFIX/share/doc/$TERMUX_PKG_NAME/
 }
+
