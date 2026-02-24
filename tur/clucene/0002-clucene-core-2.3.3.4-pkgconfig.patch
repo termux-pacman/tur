@@ -6,7 +6,6 @@ diff -up clucene-core-2.3.3.4/src/core/libclucene-core.pc.cmake.pkgconfig_sys_in
  Description: CLucene - a C++ search engine, ported from the popular Apache Lucene
  Version: @CLUCENE_VERSION_MAJOR@.@CLUCENE_VERSION_MINOR@.@CLUCENE_VERSION_REVISION@.@CLUCENE_VERSION_PATCH@
 -Libs: -L${prefix}/@LIB_DESTINATION@/ -lclucene-core
--Cflags: -I${prefix}/include -I${prefix}/include/CLucene/ext
 +Libs: -L${prefix}/@LIB_DESTINATION@/ -lclucene-core -lclucene-shared
-+Cflags: -I${prefix}/include -I${prefix}/include/CLucene/ext -I@LUCENE_SYS_INCLUDES@
+ Cflags: -I${prefix}/include -I${prefix}/include/CLucene/ext
  ~
