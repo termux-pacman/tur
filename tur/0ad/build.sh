@@ -131,3 +131,4 @@ termux_step_make_install() {
 
 	install -Dm755 $TERMUX_PKG_SRCDIR/build/resources/0ad.sh $TERMUX_PREFIX/bin/0ad
 }
+
