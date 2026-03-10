@@ -186,4 +186,3 @@ exec $TERMUX_PREFIX/opt/wine-devel/bin/wine "\$@"
 EOF
 	chmod +x $TERMUX_PREFIX/bin/wine-devel
 }
-
