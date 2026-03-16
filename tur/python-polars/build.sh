@@ -103,4 +103,3 @@ termux_step_post_make_install() {
 	# This is not necessary, and may cause file conflict
 	rm -f $PYTHONPATH/rust-toolchain.toml
 }
-
