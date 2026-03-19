@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://github.com/casey/intermodal
 TERMUX_PKG_DESCRIPTION="A command-line utility for BitTorrent torrent file creation, verification, and more"
 TERMUX_PKG_LICENSE="CC0-1.0"
 TERMUX_PKG_MAINTAINER="@flosnvjx"
-TERMUX_PKG_VERSION="0.1.15"
+TERMUX_PKG_VERSION="0.1.16"
 TERMUX_PKG_SRCURL="https://github.com/casey/intermodal/archive/refs/tags/v$TERMUX_PKG_VERSION.tar.gz"
-TERMUX_PKG_SHA256=a01fde996f2e506c7e90a6015a6e130cb4757d21e98063c38672bdccf2e99d9c
+TERMUX_PKG_SHA256=3a072929379ddba929d85a579888ac51cf22e44897b7dc84af7612f49d3874d7
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 
