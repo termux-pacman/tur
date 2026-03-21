@@ -1,0 +1,14 @@
+Prevents:
+make[2]: *** No rule to make target '/config.status', needed by 'Makefile'.  Stop.
+
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -7,7 +7,7 @@ SRCDIRS=@SRCDIRS@
+ DOCDIRS=@DOCDIRS@
+ TESTDIRS=@TESTDIRS@
+ 
+-SUBDIRS=buildlib $(SRCDIRS) $(DOCDIRS) po $(TESTDIRS)
++SUBDIRS=buildlib $(SRCDIRS) $(DOCDIRS) $(TESTDIRS)
+ 
+ dist_bin_SCRIPTS = aptitude-changelog-parser \
+ 	aptitude-create-state-bundle aptitude-run-state-bundle

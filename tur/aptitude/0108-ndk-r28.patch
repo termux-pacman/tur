@@ -1,0 +1,15 @@
+diff --git a/configure.ac b/configure.ac
+index 11a05f8..31f801e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -92,8 +92,8 @@ AC_MSG_CHECKING([for the name of the character traits template])
+ for T in char_traits string_char_traits
+ do
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <string>],
+-				     [std::basic_string<unsigned char,
+-						        std::$T < unsigned char > > s;])],
++				     [std::basic_string<char,
++						        std::$T < char > > s;])],
+ 		    TRAITS_CLASS=$T)
+ done
+ 

@@ -1,0 +1,14 @@
+diff --git a/configure.ac b/configure.ac
+index 90d2c4e..dac1435 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -9,6 +9,9 @@ AC_LANG([C++])
+ 
+ ALL_LINGUAS="ar ast bs ca cs da de dz el es eu fi fr gl hu hr it ja km ku lt mr nb ne nl nn pl pt pt_BR ro ru sk sv th tl tr uk vi zh_CN zh_TW"
+ AM_GNU_GETTEXT([external])
++AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])
++AM_GNU_GETTEXT_VERSION([0.19.6])
++
+ 
+ dnl Checks for programs.
+ AC_PROG_CXX

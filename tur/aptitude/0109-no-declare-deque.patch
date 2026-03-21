@@ -1,0 +1,17 @@
+diff --git a/src/generic/util/parsers.h b/src/generic/util/parsers.h
+index d855088..fd2fd6a 100644
+--- a/src/generic/util/parsers.h
++++ b/src/generic/util/parsers.h
+@@ -73,12 +73,6 @@
+ 
+ #include <errno.h>
+ 
+-namespace std
+-{
+-  template<typename T, typename Alloc>
+-  class deque;
+-}
+-
+ namespace parsers
+ {
+   /** \defgroup Parser combinators in C++
