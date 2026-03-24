@@ -1,5 +1,5 @@
---- a/library/std/src/sys/pal/unix/os.rs
-+++ b/library/std/src/sys/pal/unix/os.rs
+--- a/library/std/src/sys/paths/unix.rs
++++ b/library/std/src/sys/paths/unix.rs
 @@ -601,7 +601,7 @@
      crate::env::var_os("TMPDIR").map(PathBuf::from).unwrap_or_else(|| {
          cfg_select! {
