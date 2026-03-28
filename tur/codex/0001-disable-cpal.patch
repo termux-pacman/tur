@@ -10,3 +10,15 @@
  # Enable vt100-based tests (emulator) when running with `--features vt100-tests`.
  vt100-tests = []
  # Gate verbose debug logging inside the TUI implementation.
+--- a/codex-rs/tui_app_server/Cargo.toml
++++ b/codex-rs/tui_app_server/Cargo.toml
+@@ -13,7 +13,8 @@
+ path = "src/lib.rs"
+ 
+ [features]
+-default = ["voice-input"]
++# Remove "voice-input" because crate cpal required Android JNI
++default = []
+ # Enable vt100-based tests (emulator) when running with `--features vt100-tests`.
+ vt100-tests = []
+ # Gate verbose debug logging inside the TUI implementation.
