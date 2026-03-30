@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://stashapp.cc
 TERMUX_PKG_DESCRIPTION="Locally hosted web-based app written in Go which organizes and serves your Adult Video"
 TERMUX_PKG_LICENSE="AGPL-V3"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="0.30.1"
+TERMUX_PKG_VERSION="0.31.0"
 TERMUX_PKG_SRCURL=git+https://github.com/stashapp/stash
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
@@ -17,10 +17,10 @@ termux_step_post_get_source() {
 termux_step_host_build() {
 	termux_setup_nodejs
 
-	mkdir -p _yarn_bin/
-	cd _yarn_bin
-	npm install yarn
-	export PATH="$TERMUX_PKG_HOSTBUILD_DIR/_yarn_bin/node_modules/.bin:$PATH"
+	mkdir -p _pnpm_bin/
+	cd _pnpm_bin
+	npm install pnpm
+	export PATH="$TERMUX_PKG_HOSTBUILD_DIR/_pnpm_bin/node_modules/.bin:$PATH"
 
 	cd $TERMUX_PKG_SRCDIR
 	mkdir -p ui/v2.5/build
@@ -28,7 +28,7 @@ termux_step_host_build() {
 	export VITE_APP_DATE=$(date +%Y-%m-%d)
 	export VITE_APP_GITHASH=$(git rev-parse --short HEAD 2>/dev/null)
 	export VITE_APP_STASH_VERSION=v${TERMUX_PKG_VERSION}
-	yarn install --frozen-lockfile
+	pnpm install --frozen-lockfile
 	touch build/index.html
 	cd -
 
@@ -38,8 +38,8 @@ termux_step_host_build() {
 	GODEBUG=gotypesalias=0 go generate ./cmd/stash
 
 	cd ui/v2.5
-	yarn run gqlgen
-	yarn build
+	pnpm run gqlgen
+	pnpm build
 }
 
 termux_step_make() {
