@@ -1,0 +1,18 @@
+--- a/setup.py
++++ b/setup.py
+@@ -89,6 +89,7 @@
+ 
+     return _cmake_extra_options, _clean_build_folder
+ 
++cmake_extra_options, clean_build_folder = get_extra_cmake_options()
+ 
+ class CMakeExtension(Extension):
+     def __init__(self, name, sourcedir=''):
+@@ -172,7 +173,6 @@
+     def build_extension(self, ext):
+         # Build CMake args based on default settings, environment variables and CLI parameters
+         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+-        cmake_extra_options, clean_build_folder = get_extra_cmake_options()
+         cmake_args_dict = {
+             'CMAKE_LIBRARY_OUTPUT_DIRECTORY': extdir,
+             'DLIB_USE_FFMPEG': 'OFF',
