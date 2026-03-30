@@ -2,14 +2,12 @@ TERMUX_PKG_HOMEPAGE=https://github.com/pola-rs/polars
 TERMUX_PKG_DESCRIPTION="Dataframes powered by a multithreaded, vectorized query engine, written in Rust"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
-TERMUX_PKG_VERSION="1.33.1"
-TERMUX_PKG_REVISION=2
-TERMUX_PKG_SRCURL="https://github.com/pola-rs/polars/releases/download/py-$TERMUX_PKG_VERSION/polars-$TERMUX_PKG_VERSION.tar.gz"
-TERMUX_PKG_SHA256=fa3fdc34eab52a71498264d6ff9b0aa6955eb4b0ae8add5d3cb43e4b84644007
+TERMUX_PKG_VERSION="1.38.1"
+TERMUX_PKG_SRCURL="https://github.com/pola-rs/polars/archive/refs/tags/py-$TERMUX_PKG_VERSION.tar.gz"
+TERMUX_PKG_SHA256=c3004449abf0026b892db8100153aa6053ecd0c122917154106f2733aae099b4
 TERMUX_PKG_AUTO_UPDATE=true
-TERMUX_PKG_DEPENDS="libc++, python, python-pip"
-TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="wheel"
-TERMUX_PKG_PYTHON_CROSS_BUILD_DEPS="maturin"
+TERMUX_PKG_DEPENDS="libc++, python, python-pip, python-polars-runtime-32 | python-polars-runtime-64 | python-polars-runtime-compat"
+TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="build, maturin"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP="\d+\.\d+\.\d+"
 TERMUX_PKG_UPDATE_TAG_TYPE="latest-release-tag"
@@ -34,19 +32,7 @@ termux_pkg_auto_update() {
 }
 
 termux_step_pre_configure() {
-	termux_setup_cmake
 	termux_setup_rust
-
-	: "${CARGO_HOME:=$HOME/.cargo}"
-	export CARGO_HOME
-
-	cargo fetch --target "${CARGO_TARGET_NAME}"
-
-	# Dummy CMake toolchain file to workaround build error:
-	# CMake Error at /home/builder/.termux-build/_cache/cmake-3.30.3/share/cmake-3.30/Modules/Platform/Android-Determine.cmake:218 (message):
-	# Android: Neither the NDK or a standalone toolchain was found.
-	export TARGET_CMAKE_TOOLCHAIN_FILE="${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
-	touch "${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
 
 	cargo vendor
 	find ./vendor \
@@ -54,52 +40,69 @@ termux_step_pre_configure() {
 		! -wholename ./vendor/arboard \
 		-exec rm -rf '{}' \;
 
-	patch --silent -p1 \
-		-d ./vendor/arboard/ \
-		< "$TERMUX_PKG_BUILDER_DIR"/arboard-dummy-platform.diff
+	find vendor/arboard -type f -print0 | \
+		xargs -0 sed -i \
+		-e 's|"android"|"disabling_this_because_it_is_for_building_an_apk"|g' \
+		-e 's|"linux"|"android"|g'
 
-	sed -i 's|^\(\[patch\.crates-io\]\)$|\1\narboard = { path = "\./vendor/arboard" }|g' \
-		Cargo.toml
+	sed -i '/\[patch.crates-io\]/a arboard = { path = "./vendor/arboard" }' Cargo.toml
 
+	export TERMUX_PKG_SRCDIR+="/py-polars"
+	export TERMUX_PKG_BUILDDIR="$TERMUX_PKG_SRCDIR"
+	export PYTHONPATH="$TERMUX_PREFIX/lib/python${TERMUX_PYTHON_VERSION}/site-packages"
+	export CARGO_BUILD_TARGET="${CARGO_TARGET_NAME}"
+	export ANDROID_API_LEVEL="$TERMUX_PKG_API_LEVEL"
+	export PYO3_CROSS_LIB_DIR="$TERMUX_PREFIX/lib"
+	export RUSTC_BOOTSTRAP=1
 	LDFLAGS+=" -Wl,--no-as-needed,-lpython${TERMUX_PYTHON_VERSION},--as-needed"
 }
 
 termux_step_make() {
-	export CARGO_BUILD_TARGET=${CARGO_TARGET_NAME}
-	export PYO3_CROSS_LIB_DIR=$TERMUX_PREFIX/lib
-	export PYTHONPATH=$TERMUX_PREFIX/lib/python${TERMUX_PYTHON_VERSION}/site-packages
-	export ANDROID_API_LEVEL="$TERMUX_PKG_API_LEVEL"
+	local _maturin="build-python -m maturin"
+	if [[ "$TERMUX_ON_DEVICE_BUILD" == "true" ]]; then
+		_maturin=maturin
+	fi
 
-	build-python -m maturin build \
-				--target $CARGO_BUILD_TARGET \
-				--release --skip-auditwheel \
-				--interpreter python${TERMUX_PYTHON_VERSION}
+	python -m build -w -n -x
+	for runtime in 32 64 compat; do
+		$_maturin build \
+			--target "$CARGO_BUILD_TARGET" \
+			--release \
+			--skip-auditwheel \
+			--interpreter "python${TERMUX_PYTHON_VERSION}" \
+			--manifest-path "runtime/polars-runtime-$runtime/Cargo.toml"
+	done
+}
 
-	local _pyver="${TERMUX_PYTHON_VERSION/./}"
-	local _tag="cp39-abi3"
+termux_step_make_install() {
+	pip install \
+		--force-reinstall \
+		--no-deps \
+		"dist/polars-${TERMUX_PKG_VERSION}-py3-none-any.whl" \
+		--prefix "$TERMUX_PREFIX"
 
-	local wheel_arch
+	local native_wheel_arch
 	case "$TERMUX_ARCH" in
-		aarch64) wheel_arch=arm64_v8a ;;
-		arm)     wheel_arch=armeabi_v7a ;;
-		x86_64)  wheel_arch=x86_64 ;;
-		i686)    wheel_arch=x86 ;;
+		aarch64) native_wheel_arch=arm64_v8a ;;
+		arm)     native_wheel_arch=armeabi_v7a ;;
+		x86_64)  native_wheel_arch=x86_64 ;;
+		i686)    native_wheel_arch=x86 ;;
 		*)
 			echo "ERROR: Unknown architecture: $TERMUX_ARCH"
 			return 1 ;;
 	esac
+	local native_wheel_ext="${TERMUX_PKG_VERSION}-cp310-abi3-android_${ANDROID_API_LEVEL}_${native_wheel_arch}.whl"
 
-	# Fix wheel name, although it it built with tag `cp39-abi3`, but it is linked against `python3.x.so`
-	# so it will not work on other pythons.
-	mv "target/wheels/polars-${TERMUX_PKG_VERSION}-${_tag}-android_${TERMUX_PKG_API_LEVEL}_${wheel_arch}.whl" \
-		"target/wheels/polars-${TERMUX_PKG_VERSION}-py${_pyver}-none-any.whl"
-}
-
-termux_step_make_install() {
-	pip install --force-reinstall --no-deps ./target/wheels/*.whl --prefix $TERMUX_PREFIX
-}
-
-termux_step_post_make_install() {
-	# This is not necessary, and may cause file conflict
-	rm -f $PYTHONPATH/rust-toolchain.toml
+	local native_wheel_type
+	for native_wheel_type in 32 64 compat; do
+		# Avoid 'ERROR: polars_runtime_32-1.38.1-cp310-abi3-android_24_arm64_v8a.whl is not a supported wheel on this platform.'
+		local _whl_orig="$(realpath ../target/wheels/polars_runtime_"${native_wheel_type}-${native_wheel_ext}")"
+		local _whl_dest="polars_runtime_${native_wheel_type}-${TERMUX_PKG_VERSION}-py${TERMUX_PYTHON_VERSION/./}-none-any.whl"
+		mv "$_whl_orig" "$_whl_dest"
+		pip install \
+			--force-reinstall \
+			--no-deps \
+			"$_whl_dest" \
+			--prefix "$TERMUX_PREFIX"
+	done
 }
