@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Dataframes powered by a multithreaded, vectorized query 
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
 TERMUX_PKG_VERSION="1.39.3"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://github.com/pola-rs/polars/archive/refs/tags/py-$TERMUX_PKG_VERSION.tar.gz"
 TERMUX_PKG_SHA256=02e29fd1d514721a6ed563244e2beedf0855c7ff4efcc503f772f83e9ffa71c9
 TERMUX_PKG_AUTO_UPDATE=true
@@ -38,14 +39,16 @@ termux_step_pre_configure() {
 	find ./vendor \
 		-mindepth 1 -maxdepth 1 -type d \
 		! -wholename ./vendor/arboard \
+		! -wholename ./vendor/x11rb-protocol \
 		-exec rm -rf '{}' \;
 
-	find vendor/arboard -type f -print0 | \
+	find vendor/{arboard,x11rb-protocol} -type f -print0 | \
 		xargs -0 sed -i \
-		-e 's|"android"|"disabling_this_because_it_is_for_building_an_apk"|g' \
-		-e 's|"linux"|"android"|g'
+		-e 's|android|disabling_this_because_it_is_for_building_an_apk|g' \
+		-e "s|/tmp|$TERMUX_PREFIX/tmp|g"
 
 	sed -i '/\[patch.crates-io\]/a arboard = { path = "./vendor/arboard" }' Cargo.toml
+	sed -i '/\[patch.crates-io\]/a x11rb-protocol = { path = "./vendor/x11rb-protocol" }' Cargo.toml
 
 	export TERMUX_PKG_SRCDIR+="/py-polars"
 	export TERMUX_PKG_BUILDDIR="$TERMUX_PKG_SRCDIR"
