@@ -4,6 +4,7 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="LICENSE"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
 TERMUX_PKG_VERSION="0.13.1"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://github.com/mistricky/CodeSnap/archive/refs/tags/v$TERMUX_PKG_VERSION.tar.gz"
 TERMUX_PKG_SHA256=e1636f08781fdb6e380428bd54f458f59b7764702271a7f2f407ad4432753c33
 TERMUX_PKG_AUTO_UPDATE=true
@@ -17,22 +18,23 @@ termux_step_pre_configure() {
 		export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=$($CC -print-libgcc-file-name)"
 	fi
 
-	: "${CARGO_HOME:=$HOME/.cargo}"
-	export CARGO_HOME
-
 	cargo vendor
 	find ./vendor \
 		-mindepth 1 -maxdepth 1 -type d \
 		! -wholename ./vendor/arboard \
+		! -wholename ./vendor/x11rb-protocol \
 		-exec rm -rf '{}' \;
 
-	patch --silent -p1 \
-		-d ./vendor/arboard/ \
-		< "$TERMUX_PKG_BUILDER_DIR"/arboard-dummy-platform.diff
+	find vendor/{arboard,x11rb-protocol} -type f -print0 | \
+		xargs -0 sed -i \
+		-e 's|core::mem::size_of|size_of|g' \
+		-e 's|android|disabling_this_because_it_is_for_building_an_apk|g' \
+		-e "s|/tmp|$TERMUX_PREFIX/tmp|g"
 
 	echo "" >> Cargo.toml
 	echo '[patch.crates-io]' >> Cargo.toml
-	echo 'arboard = { path = "./vendor/arboard" }' >> Cargo.toml
+	echo "arboard = { path = \"./vendor/arboard\" }" >> Cargo.toml
+	echo "x11rb-protocol = { path = \"./vendor/x11rb-protocol\" }" >> Cargo.toml
 }
 
 termux_step_make() {
