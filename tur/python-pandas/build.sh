@@ -4,11 +4,12 @@ TERMUX_PKG_DESCRIPTION="Powerful Python data analysis toolkit"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
 TERMUX_PKG_VERSION="3.0.2"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=git+https://github.com/pandas-dev/pandas
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libc++, python, python-numpy, python-pip"
 _NUMPY_VERSION=$(. $TERMUX_SCRIPTDIR/packages/python-numpy/build.sh; echo $TERMUX_PKG_VERSION)
-TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="wheel, Cython, meson-python, build, versioneer"
+TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="'Cython==3.2.4', meson-python, build, versioneer"
 TERMUX_PKG_PYTHON_CROSS_BUILD_DEPS="'numpy==$_NUMPY_VERSION'"
 TERMUX_PKG_UPDATE_TAG_TYPE="latest-release-tag"
 
