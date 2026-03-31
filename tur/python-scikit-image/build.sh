@@ -3,15 +3,15 @@ TERMUX_PKG_DESCRIPTION="Image processing in Python"
 TERMUX_PKG_LICENSE="BSD 2-Clause, BSD 3-Clause, MIT"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
 TERMUX_PKG_VERSION="0.26.0"
-TERMUX_PKG_REVISION=2
+TERMUX_PKG_REVISION=3
 TERMUX_PKG_SRCURL="https://github.com/scikit-image/scikit-image/archive/refs/tags/v$TERMUX_PKG_VERSION.tar.gz"
 TERMUX_PKG_SHA256=09bb8cbb2a7b0c4f24fd4caeda6357732c64c2556520bdbad1dc15fb498e6a08
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libandroid-complex-math, libc++, python, python-pip, python-numpy, python-pillow, python-pywavelets, python-scipy"
 TERMUX_PKG_ANTI_BUILD_DEPENDS="python-pillow, python-pywavelets, python-scipy"
-TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="wheel, 'Cython>=3.0.4', meson-python, build"
+TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="build, 'Cython>=3.0.4', meson-python, pythran"
 _NUMPY_VERSION=$(. $TERMUX_SCRIPTDIR/packages/python-numpy/build.sh; echo $TERMUX_PKG_VERSION)
-TERMUX_PKG_PYTHON_CROSS_BUILD_DEPS="pythran, 'numpy==$_NUMPY_VERSION'"
+TERMUX_PKG_PYTHON_CROSS_BUILD_DEPS="'numpy==$_NUMPY_VERSION'"
 TERMUX_PKG_SETUP_PYTHON=true
 
 TERMUX_MESON_WHEEL_CROSSFILE="$TERMUX_PKG_TMPDIR/wheel-cross-file.txt"
@@ -20,10 +20,6 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 "
 
 termux_step_pre_configure() {
-	if $TERMUX_ON_DEVICE_BUILD; then
-		termux_error_exit "Package '$TERMUX_PKG_NAME' is not available for on-device builds."
-	fi
-
 	# ERROR: ./lib/python3.12/site-packages/skimage/measure/_marching_cubes_lewiner_cy.cpython-312.so contains undefined symbols:
 	#   139: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND cpow
 	LDFLAGS+=" -landroid-complex-math"
@@ -55,6 +51,10 @@ termux_step_make() {
 
 termux_step_make_install() {
 	local _pyv="${TERMUX_PYTHON_VERSION/./}"
-	local _whl="scikit_image-${TERMUX_PKG_VERSION#*:}-cp$_pyv-cp$_pyv-android_$TERMUX_ARCH.whl"
+	local _target=android
+	if [[ "$TERMUX_ON_DEVICE_BUILD" == "true" ]]; then
+		_target+="_${TERMUX_PKG_API_LEVEL}"
+	fi
+	local _whl="scikit_image-${TERMUX_PKG_VERSION#*:}-cp$_pyv-cp$_pyv-${_target}_$TERMUX_ARCH.whl"
 	pip install --force-reinstall --no-deps --prefix=$TERMUX_PREFIX $TERMUX_PKG_SRCDIR/dist/$_whl
 }
