@@ -3,13 +3,12 @@ TERMUX_PKG_DESCRIPTION="WireGuard frontend for mitmproxy"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
 TERMUX_PKG_VERSION="0.1.23"
-TERMUX_PKG_REVISION=4
+TERMUX_PKG_REVISION=5
 TERMUX_PKG_SRCURL="https://github.com/decathorpe/mitmproxy_wireguard/archive/refs/tags/$TERMUX_PKG_VERSION.tar.gz"
 TERMUX_PKG_SHA256=29eac8ffcb235194b9f1aba9e0fe3e024aa8417427005eabeb30c1870c808b35
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libc++, openssl, python"
-TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="wheel"
-TERMUX_PKG_PYTHON_CROSS_BUILD_DEPS="maturin"
+TERMUX_PKG_PYTHON_COMMON_BUILD_DEPS="wheel, maturin"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_UPDATE_TAG_TYPE="newest-tag"
 
@@ -31,7 +30,12 @@ termux_step_make_install() {
 	export PYTHONPATH=$TERMUX_PREFIX/lib/python${_PYTHON_VERSION}/site-packages
 	export ANDROID_API_LEVEL="$TERMUX_PKG_API_LEVEL"
 
-	build-python -m maturin build \
+	local _maturin='build-python -m maturin'
+	if [[ "$TERMUX_ON_DEVICE_BUILD" == "true" ]]; then
+		_maturin=maturin
+	fi
+
+	$_maturin build \
 		--target $CARGO_BUILD_TARGET \
 		--release --skip-auditwheel \
 		--interpreter python${TERMUX_PYTHON_VERSION}
