@@ -1,0 +1,16 @@
+`_LIBCPP_NODEBUG` doesn't support well on gcc-12
+
+--- a/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1/__config
++++ b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1/__config
+@@ -1171,7 +1171,11 @@
+ #    define _LIBCPP_NOESCAPE
+ #  endif
+ 
++#  if !defined(_LIBCPP_COMPILER_GCC) || _LIBCPP_GCC_VER >= 1300
+ #  define _LIBCPP_NODEBUG [[__gnu__::__nodebug__]]
++#  else
++#  define _LIBCPP_NODEBUG
++#  endif
+ 
+ #  if __has_cpp_attribute(_Clang::__no_specializations__)
+ #    define _LIBCPP_NO_SPECIALIZATIONS                                                                                 \
