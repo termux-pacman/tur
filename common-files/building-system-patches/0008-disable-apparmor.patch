@@ -1,19 +1,48 @@
+--- a/scripts/build/toolchain/termux_setup_toolchain_29.sh
++++ b/scripts/build/toolchain/termux_setup_toolchain_29.sh
+@@ -133,7 +133,7 @@ termux_setup_toolchain_29() {
+ 	[ -d "${TERMUX_STANDALONE_TOOLCHAIN}-work" ] || mkdir -p "${TERMUX_STANDALONE_TOOLCHAIN}-work"
+ 
+ 
+-	if ! mountpoint -q "${TERMUX_STANDALONE_TOOLCHAIN}"; then
++	if false; then
+ 		fuse-overlayfs \
+ 			"${TERMUX_STANDALONE_TOOLCHAIN}" \
+ 			-o lowerdir="${NDK}/toolchains/llvm/prebuilt/linux-x86_64" \
+@@ -145,12 +145,17 @@ termux_setup_toolchain_29() {
+ 		return
+ 	fi
+ 
++	rm -rf "${TERMUX_STANDALONE_TOOLCHAIN}"
++
+ 	local _NDK_ARCHNAME=$TERMUX_ARCH
+ 	if [ "$TERMUX_ARCH" = "aarch64" ]; then
+ 		_NDK_ARCHNAME=arm64
+ 	elif [ "$TERMUX_ARCH" = "i686" ]; then
+ 		_NDK_ARCHNAME=x86
+ 	fi
++	cp "$NDK/toolchains/llvm/prebuilt/linux-x86_64" "${TERMUX_STANDALONE_TOOLCHAIN}" -r
++	cp "$NDK/source.properties" "${TERMUX_STANDALONE_TOOLCHAIN}"
++
+ 	# Remove android-support header wrapping not needed on android-21:
+ 	rm -Rf $TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/local
+ 
 --- a/scripts/run-docker.sh
 +++ b/scripts/run-docker.sh
-@@ -96,7 +96,7 @@ if [ "$UNAME" = Darwin ]; then
+@@ -92,7 +92,7 @@ if [ "$UNAME" = Darwin ]; then
  	SEC_OPT=""
  else
  	REPOROOT="$(dirname $(readlink -f $0))/../"
 -	SEC_OPT=" --security-opt seccomp=$REPOROOT/scripts/profile.json --security-opt apparmor=_custom-termux-package-builder-$CONTAINER_NAME --cap-add CAP_SYS_ADMIN --device /dev/fuse"
-+	SEC_OPT=" --privileged --security-opt seccomp=unconfined --cap-add CAP_SYS_ADMIN --device /dev/fuse"
++	SEC_OPT=" --security-opt seccomp=$REPOROOT/scripts/profile.json"
  fi
  
  if [ "${CI:-}" = "true" ]; then
-@@ -135,6 +135,7 @@ APPARMOR_PARSER=""
- if command -v apparmor_parser > /dev/null; then
- 	APPARMOR_PARSER="apparmor_parser"
+@@ -138,6 +138,7 @@ if [ -z "$APPARMOR_PARSER" ] || ! $SUDO aa-status --enabled; then
+ 	echo "         Avoid executing untrusted code in the container"
+ 	APPARMOR_PARSER=""
  fi
 +APPARMOR_PARSER=""
  
- if [ -z "$APPARMOR_PARSER" ] || ! $SUDO aa-status --enabled; then
- 	echo "WARNING: apparmor_parser not found, AppArmor profiles will not be loaded!"
+ load_apparmor_profile() {
+ 	local profile_path="$1"
