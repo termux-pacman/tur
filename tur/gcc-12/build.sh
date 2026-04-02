@@ -3,11 +3,13 @@ TERMUX_PKG_DESCRIPTION="GNU C compiler"
 TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_DEPENDS="binutils, libc++, libgmp, libmpfr, libmpc, libisl, zlib"
 TERMUX_PKG_VERSION=12.5.0
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_MAINTAINER="@licy183"
 TERMUX_PKG_SRCURL=https://mirrors.kernel.org/gnu/gcc/gcc-${TERMUX_PKG_VERSION}/gcc-${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=f2dfac9c026c58b04251732aa459db614ae1017d32a18a296b1ae5af3dcad927
 TERMUX_PKG_BREAKS="binutils-is-llvm"
 TERMUX_PKG_NO_STATICSPLIT=true
+TERMUX_PKG_ON_DEVICE_BUILD_NOT_SUPPORTED=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="\
 --enable-initfini-array
 --enable-default-pie
@@ -29,6 +31,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="\
 --disable-libstdcxx
 --disable-multilib
 --disable-tls
+--with-ld=$TERMUX_PREFIX/bin/ld.bfd
 --with-libatomic
 --with-system-zlib
 --with-gmp=$TERMUX_PREFIX
@@ -61,10 +64,6 @@ fi
 source $TERMUX_SCRIPTDIR/common-files/setup_toolchain_gcc.sh
 
 termux_step_pre_configure() {
-	if $TERMUX_ON_DEVICE_BUILD; then
-		termux_error_exit "Package '$TERMUX_PKG_NAME' is not available for on-device builds."
-	fi
-
 	export ac_cv_func_aligned_alloc=no
 	export ac_cv_func__aligned_malloc=no
 	export ac_cv_func_memalign=no
