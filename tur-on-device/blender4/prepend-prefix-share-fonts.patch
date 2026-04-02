@@ -1,0 +1,11 @@
+--- a/source/blender/blenkernel/intern/appdir.cc
++++ b/source/blender/blenkernel/intern/appdir.cc
+@@ -245,7 +245,7 @@ bool BKE_appdir_font_folder_default(char *dir, size_t dir_maxncpy)
+     BLI_path_join(test_dir, sizeof(test_dir), home_dir, "Library/Fonts");
+   }
+ #else
+-  STRNCPY(test_dir, "/usr/share/fonts");
++  STRNCPY(test_dir, "@TERMUX_PREFIX@/share/fonts");
+ #endif
+ 
+   if (test_dir[0] && BLI_exists(test_dir)) {
