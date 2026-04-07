@@ -54,3 +54,4 @@ termux_step_make_install() {
 		COMPLETIONS=0 \
 		SKIP_UTILS="pinky uptime users who hostid chcon runcon"
 }
+
