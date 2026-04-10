@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://github.com/rvben/rumdl
 TERMUX_PKG_DESCRIPTION="Markdown Linter and Formatter written in Rust"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
-TERMUX_PKG_VERSION="0.1.68"
+TERMUX_PKG_VERSION="0.1.69"
 TERMUX_PKG_SRCURL="https://github.com/rvben/rumdl/archive/refs/tags/v$TERMUX_PKG_VERSION.tar.gz"
-TERMUX_PKG_SHA256=f9ccab8e405fac0110bf1c9b90ed61fa14cee5122f51f7d5b6c6f8a2b1e821e8
+TERMUX_PKG_SHA256=c0380805d8e10473cbe016fb2d6916c9f11c19fb60dd1a9c336677b2320af84d
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_BUILD_IN_SRC=true
 
