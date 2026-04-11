@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-: ${TERMUX_BUILDER_IMAGE_NAME:="ghcr.io/termux-user-repository/termux-docker-android-7:$ARCH"}
+: ${TERMUX_BUILDER_IMAGE_NAME:="termux/termux-docker:$ARCH"}
 : ${CONTAINER_NAME:="termux-$ARCH"}
 
 CONTAINER_HOME_DIR=/data/data/com.termux/files/home
