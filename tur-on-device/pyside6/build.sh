@@ -8,6 +8,7 @@ LICENSES/Qt-GPL-exception-1.0.txt
 "
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="6.11.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-$TERMUX_PKG_VERSION-src/pyside-setup-everywhere-src-$TERMUX_PKG_VERSION.tar.xz"
 TERMUX_PKG_SHA256=48d5c44d7c3ed861055d5491486e6a220ef5006573cae01a5fae3fb69d786336
 TERMUX_PKG_AUTO_UPDATE=true
