@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Lightweight Raku-like environment for virtual machines"
 TERMUX_PKG_LICENSE="Artistic-License-2.0"
 TERMUX_PKG_MAINTAINER="@termux-user-repository"
 TERMUX_PKG_VERSION="2026.03"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/Raku/nqp/releases/download/$TERMUX_PKG_VERSION/nqp-$TERMUX_PKG_VERSION.tar.gz
 TERMUX_PKG_SHA256=e7c15fcb5a77a6b5295dba68a9bd3a2d3151a66851e1f82f7e8e701741c97da5
 TERMUX_PKG_DEPENDS="moarvm"
