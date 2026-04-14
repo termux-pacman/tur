@@ -3,11 +3,12 @@ TERMUX_PKG_DESCRIPTION="A toolchain for web projects with a formatter and linter
 TERMUX_PKG_LICENSE="Apache-2.0,MIT"
 TERMUX_PKG_MAINTAINER="@gebleksengek"
 TERMUX_PKG_VERSION="1.9.4"
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_REVISION=2
 TERMUX_PKG_GIT_BRANCH="cli/v$TERMUX_PKG_VERSION"
 TERMUX_PKG_SRCURL=git+https://github.com/biomejs/biome.git
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_BUILD_DEPENDS="zlib"
+TERMUX_PKG_CONFLICTS="biome2"
 
 termux_step_pre_configure() {
 	termux_setup_rust
