@@ -5,11 +5,14 @@ on:
     - master
     paths:
     - '.github/workflows/repo-update.yml'
+  pull_request:
+    paths:
+    - '.github/workflows/repo-update.yml'
   schedule:
     - cron:  '0,30 0-23 * * *'
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.ref_name }}-${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
@@ -20,6 +23,12 @@ jobs:
         target_repo: [tur@aarch64, tur@arm, tur@x86_64, tur@i686, tur-continuous@aarch64, tur-continuous@arm, tur-continuous@x86_64, tur-continuous@i686, tur-multilib@aarch64, tur-multilib@arm, tur-multilib@x86_64, tur-multilib@i686]
       fail-fast: false
     steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v6.1.0
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
     - name: Clone check-tools
       run: git clone "https://termux-pacman-bot:${{ secrets.TOKEN }}@github.com/termux-pacman/check-tools"
     - name: Import key of Termux-Pacman
@@ -54,10 +63,6 @@ jobs:
           fi
         done
         if [ -f "${DELETED_FILE}" ]; then
-          # Install aws-cli
-          git clone https://github.com/termux-pacman/aws-cli-action
-          ./aws-cli-action/setup.sh '${{ secrets.AWS_ACCESS_KEY_ID }}' '${{ secrets.AWS_ACCESS_KEY }}' '${{ secrets.AWS_REGION }}'
-
           # Import gpg key
           mkdir gk
           echo "${{ secrets.SF_GPG_BOT }}" > gk/termux-pacman-bot.gpg
@@ -83,7 +88,7 @@ jobs:
         tar cf total-${{ matrix.target_repo }}-${{ github.sha }}.tar.gz ./total
     - name: Store RESULT.* files
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: total-${{ matrix.target_repo }}-${{ github.sha }}
         path: ./check-tools/total-${{ matrix.target_repo }}-${{ github.sha }}.tar.gz
@@ -96,7 +101,7 @@ jobs:
     - name: Clone repository
       run: git clone https://github.com/termux-pacman/tur.git tur-pacman
     - name: Get RESULT.* files
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v7
       with:
         path: ./
     - name: Creating a REBUILD-LIST-BUILD
@@ -126,6 +131,9 @@ jobs:
     - name: Clone root repository
       run: git clone https://github.com/termux-user-repository/tur.git
     - name: Update repo
+      env:
+        GITHUB_EVENT: ${{ github.event_name }}
+        GH_TOKEN: ${{ secrets.TOKEN }}
       run: |
         info() {
           echo "==> $1"
@@ -134,11 +142,18 @@ jobs:
           echo "-> $1"
         }
         install_list_issues() {
-          if [ -f ../LIST-ISSUES ]; then
-            rm ../LIST-ISSUES
-          fi
-          curl --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -s -X GET -G \
-            "https://api.github.com/repos/${{ github.repository }}/issues" -o ../LIST-ISSUES
+          while true; do
+            if [ -f ../LIST-ISSUES ]; then
+              rm ../LIST-ISSUES
+            fi
+            curl --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -s -X GET -G \
+              "https://api.github.com/repos/${{ github.repository }}/issues" -o ../LIST-ISSUES
+            if [ "$(jq 'length' ../LIST-ISSUES)" = "0" ]; then
+              sleep 5
+              continue
+            fi
+            break
+          done
         }
         
         # Edit
@@ -213,7 +228,9 @@ jobs:
         git reset tur tur-hacking tur-continuous tur-multilib tur-on-device README.md SECURITY.md repo.json
         {
           git commit -m "Update repo"
-          git push origin master
+          if [ "${GITHUB_EVENT}" != "pull_request" ]; then
+            git push origin master
+          fi
         } || true
         commit "Update repo packages"
         install_list_issues
@@ -230,7 +247,9 @@ jobs:
             else
               git commit -m "$commit_file"
             fi
-            git push origin master
+            if [ "${GITHUB_EVENT}" != "pull_request" ]; then
+              git push origin master
+            fi
           } || true
           for j in $(sed 's/&&/ /g' <<< "${i_sp[1]}"); do
             while read LINE; do
@@ -241,8 +260,10 @@ jobs:
                 continue
               fi
               NUMBER=$(awk -F ' // ' '{printf $3}' <<< "$LINE")
-              GH_TOKEN="${{ secrets.TOKEN }}" gh issue close ${NUMBER} \
-                -c "The package has been updated - https://github.com/termux-pacman/tur/commit/$(git log -n 1 --format=%H -- ${j})."
+              if [ "${GITHUB_EVENT}" != "pull_request" ]; then
+                gh issue close ${NUMBER} \
+                  -c "The package has been updated - https://github.com/termux-pacman/tur/commit/$(git log -n 1 --format=%H -- ${j})."
+              fi
               install_list_issues
               break
             done <<< $(jq -r '.[] | "\(.user.login) \("//") \(.state) \("//") \(.number) \("//") \(.title)"' ../LIST-ISSUES)
@@ -261,11 +282,13 @@ jobs:
               [[ $(git log -n 1 --format=%ae -- "${i}") = "termux-pacman-bot@outlook.com" ]]; then
               if ! $(jq -r '.[] | "\(.user.login) \("/") \(.state) \("/") \(.title)"' ../LIST-ISSUES | grep -q "^termux-pacman-bot / open / \[AUTO-CHECK\]:.*$(dirname ${i})$"); then
                 commit "Create an issue on $(dirname ${i})"
-                GH_TOKEN="${{ secrets.TOKEN }}" gh issue create \
-                  --title "[AUTO-CHECK]: failed to recompile $(dirname ${i})" \
-                  --body "$(echo -e "This issue was automatically generated because the '$(dirname ${i})' package was not recompiled successfully.\n\nCommit by recompilation - https://github.com/termux-pacman/tur/commit/$(git log -n 1 --format=%H -- ${i})")" \
-                  --label "auto recompilation failed" \
-                  --assignee Maxython
+                if [ "${GITHUB_EVENT}" != "pull_request" ]; then
+                  gh issue create \
+                    --title "[AUTO-CHECK]: failed to recompile $(dirname ${i})" \
+                    --body "$(echo -e "This issue was automatically generated because the '$(dirname ${i})' package was not recompiled successfully.\n\nCommit by recompilation - https://github.com/termux-pacman/tur/commit/$(git log -n 1 --format=%H -- ${i})")" \
+                    --label "auto recompilation failed" \
+                    --assignee Maxython
+                fi
               fi
               continue
             fi
@@ -275,12 +298,16 @@ jobs:
           done
           if [ -n "${listchanged}" ]; then
             git commit -m "$(echo -e "termux-pacman/auto-check-repo: preparing to recompile packages\n[skip ci]")"
-            git push origin master
+            if [ "${GITHUB_EVENT}" != "pull_request" ]; then
+              git push origin master
+            fi
             for i in ${listchanged}; do
               sed -i '$d' ./${i}
               git add ./${i}
               git commit -m "rebuild($(dirname ${i})): auto check by @termux-pacman-bot"
-              git push origin master
+              if [ "${GITHUB_EVENT}" != "pull_request" ]; then
+                git push origin master
+              fi
             done
           fi
         fi
