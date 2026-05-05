@@ -1,5 +1,5 @@
 ##
-##  Copyright 2020 Termux
+##  Copyright 2026 Termux
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 ##  limitations under the License.
 ##
 
-name: Packages-tur
+name: Packages-TUR
 
 on:
   push:
@@ -32,12 +32,16 @@ on:
       packages:
         description: "A space-separated names of packages selected for rebuilding"
         required: true
+      free-space:
+        description: "Free space even if not building large package (useful when building a large number of packages)"
+        type: boolean
+        default: false
 
 jobs:
   build:
+    permissions:
+      contents: read # actions/upload-artifact doesn't need contents: write
     runs-on: ubuntu-24.04
-    env:
-      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     strategy:
       matrix:
         target_arch: [aarch64, arm, i686, x86_64]
@@ -47,9 +51,6 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 1000
-
-    - name: Set process id limit for 32-bit builds depending on aosp-libs
-      run: echo 65535 | sudo tee /proc/sys/kernel/pid_max
 
     - name: Merge repos
       run: ./setup-environment.sh
@@ -109,7 +110,7 @@ jobs:
             exit 0
           fi
 
-          for repo_path in $(jq --raw-output 'keys | .[]' repo.json); do
+          for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
             repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
             # tur-on-device packages cannot be built in packages.yml, only package_on_device.yml
             if [[ "${repo}" == "tur-on-device" ]]; then
@@ -151,7 +152,7 @@ jobs:
           # into an array
           read -a PACKAGES <<< "${MANUAL_INPUT_PACKAGES//$'\n'/ }"
           for pkg in "${PACKAGES[@]}"; do
-            repo_paths=$(jq --raw-output 'keys | .[]' repo.json)
+            repo_paths=$(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json)
             found=false
             for repo_path in $repo_paths; do
               repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
@@ -169,7 +170,8 @@ jobs:
             fi
           done
         fi
-        for repo in $(jq --raw-output '.[].name' repo.json); do
+
+        for repo in $(jq --raw-output 'del(.pkg_format) | .[].name' repo.json); do
           # Fix so that lists do not contain duplicates
           if [ -f ./built_${repo}_packages.txt ]; then
             sort ./built_${repo}_packages.txt | uniq > ./built_${repo}_packages.txt.tmp
@@ -186,7 +188,7 @@ jobs:
         done
 
         declare -a packages=()
-        for repo_path in $(jq --raw-output 'keys | .[]' repo.json); do
+        for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
           repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
           if [ -f "./built_${repo}_packages.txt" ]; then
             packages+=($(cat "./built_${repo}_packages.txt"))
@@ -195,46 +197,49 @@ jobs:
 
         echo "packages: ${packages[*]}"
 
-        docker='true'
+        free_space='false'
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          free_space=${{ github.event.inputs.free-space }}
+        else
+          if grep -qiP '^\s*%ci:free-disk\s*$' <(git log --format="%B" -n 1 --no-merges "HEAD"); then
+            free_space=true
+          fi
+        fi
         if [[ "${#packages[@]}" -gt 0 ]]; then
           for pkg in "${packages[@]}"; do
             if grep -qFx "$pkg" ./big-pkgs.list; then
-              docker='false'
+              free_space='true'
               break
             fi
             if grep -qFx "$pkg" ./scripts/big-pkgs.list; then
-              docker='false'
+              free_space='true'
               break
             fi
           done
         fi
+        echo "free-space=$free_space" >> $GITHUB_OUTPUT
 
-        echo "docker-build=$docker" >> $GITHUB_OUTPUT
         # XXX: TUR uses the termux-builder directly and may add custom builder image later.
+        needs_docker_build=false
         # if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-        #   Build local Docker image if setup scripts were changed.
-        #   Useful for pull requests submitting changes for both build environment and packages.
+        #   # Build local Docker image if setup scripts were changed.
+        #   # Useful for pull requests submitting changes for both build environment and packages.
         #   if grep -qP '^scripts/(Dockerfile|properties\.sh|setup-android-sdk\.sh|setup-ubuntu\.sh)$' <<< "$CHANGED_FILES"; then
-        #     echo "Detected changes for environment setup scripts. Building custom Docker image now."
-        #     if [ $docker == 'false' ]; then
-        #       echo "Skipping due to building large packages."
-        #       exit 0
-        #     fi
-        #     cd ./scripts
-        #     docker build -t ghcr.io/termux/package-builder:latest .
-        #     cd ..
+        #     needs_docker_build=true
         #   fi
         # fi
+        echo "needs-docker-build=$needs_docker_build" >> $GITHUB_OUTPUT
 
     - name: Lint packages
       run: |
         declare -a package_recipes=()
-        for repo_path in $(jq --raw-output 'keys | .[]' repo.json); do
+        for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
           repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
           if [ -f "./built_${repo}_packages.txt" ]; then
             package_recipes+=($(cat "./built_${repo}_packages.txt" | repo_path="${repo_path}" awk '{print ENVIRON["repo_path"]"/"$1"/build.sh"}'))
           fi
         done
+
         if [[ "${#package_recipes[@]}" -gt 0 ]]; then
           ./scripts/lint-packages.sh "${package_recipes[@]}"
         fi
@@ -247,24 +252,26 @@ jobs:
         priority: 100
         device_name: /dev/zram0
 
-    - name: Free additional disk space (if necessary)
-      if: ${{ steps.build-info.outputs.docker-build == 'false' }}
+    - name: Build docker image
+      if: ${{ steps.build-info.outputs.needs-docker-build == 'true' }}
       run: |
-        ./scripts/setup-ubuntu.sh
-        # need to unset these for setup-android-sdk.sh.
-        unset NDK ANDROID_HOME
-        ./scripts/setup-android-sdk.sh
-        rm -f ${HOME}/lib/ndk-*.zip ${HOME}/lib/sdk-*.zip
-        sudo apt install ninja-build
+        docker build -t ghcr.io/termux/package-builder:latest scripts/
+        docker buildx prune -af
+
+    - name: Load Docker image
+      if: ${{ steps.build-info.outputs.free-space == 'true' }}
+      run: |
+        ./scripts/run-docker.sh true
+
+    - name: Free additional disk space (if needed)
+      if: ${{ steps.build-info.outputs.free-space == 'true' }}
+      run: |
         ./scripts/free-space.sh
 
     - name: Build packages
-      env:
-        DOCKER_BUILD: ${{ steps.build-info.outputs.docker-build }}
-        TERMUX_DOCKER__CONTAINER_EXEC_COMMAND__PRE_CHECK_IF_WILL_BUILD_PACKAGES: "true"
       run: |
         declare -a packages=()
-        for repo_path in $(jq --raw-output 'keys | .[]' repo.json); do
+        for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
           repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
           if [ -f "./built_${repo}_packages.txt" ]; then
             packages+=($(cat "./built_${repo}_packages.txt"))
@@ -274,16 +281,7 @@ jobs:
         echo "packages: ${packages[*]}"
 
         if [[ "${#packages[@]}" -gt 0 ]]; then
-          if [ "$DOCKER_BUILD" == 'false' ]; then
-            # these need to be unset a second time again for ./build-package.sh
-            # when it is run outside of Docker, because GitHub Actions does not
-            # support permanently unsetting variables at time of writing.
-            # https://github.com/actions/runner/issues/1126
-            unset NDK ANDROID_HOME
-            ./build-package.sh -I -C -a "${{ matrix.target_arch }}" --format pacman "${packages[@]}"
-          else
-            ./scripts/run-docker.sh ./build-package.sh -I -C -a "${{ matrix.target_arch }}" --format pacman "${packages[@]}"
-          fi
+          ./scripts/run-docker.sh -d ./build-package.sh -I -C -a "${{ matrix.target_arch }}" --format pacman "${packages[@]}"
         fi
 
     - name: Generate build artifacts
@@ -308,6 +306,7 @@ jobs:
             done < <(cat "./pkgs/built_${repo}_packages.txt")
           fi
         done
+
         # Files containing certain symbols (e.g. ":") will cause failure in actions/upload-artifact.
         # Archiving *.pkg.* files in a tarball to avoid issues with uploading.
         tar cf artifacts/pkgs-${{ matrix.target_arch }}-${{ github.sha }}.tar pkgs
