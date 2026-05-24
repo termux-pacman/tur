@@ -17,4 +17,3 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 termux_step_post_make_install() {
 	touch "$TERMUX_PREFIX"/share/supertuxkart/data/.placeholder
 }
-
