@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE="https://github.com/shader-slang/slang"
 TERMUX_PKG_DESCRIPTION="Shading language that makes it easier to build and maintain large shader codebases in a modular and extensible fashion"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="@otreblan"
-TERMUX_PKG_VERSION="2026.9.1"
+TERMUX_PKG_VERSION="2026.10"
 _SLANG_LUA_VERSION="5.5.0"
 _SLANG_CMARK_VERSION="0.8.0"
 _SLANG_MINIZ_VERSION="3.1.1"
@@ -15,12 +15,15 @@ TERMUX_PKG_SRCURL=(
 	"https://github.com/martinus/unordered_dense/archive/refs/tags/v$_SLANG_UNORDERED_DENSE_VERSION.tar.gz"
 )
 TERMUX_PKG_SHA256=(
-	"53c0bf21eff7ba8e3825395ee3a4d7564c2a330fa32e47e165926527c7994303"
+	"7fc1a33cb37382676f26c729859097e68ed937d4c2323b77ac7387a43600a711"
 	"a33484f7ce4c14e12ea4d51cc5a7353bff2796a8074004b96ae2dc246f33f16e"
 	"bb755e2a28fac2eb6b02981fbc72cc11e225a726d71ddffd0091055984261a16"
 	"8bb29c7bd6f22356e5583e794bed4a0b3e6dfcbcadb49974fc9270ccca1e5557"
 	"9f7202ec6d8353932ef865d33f5872e4b7a1356e9032da7cd09c3a0c5bb2b7de"
 )
+TERMUX_PKG_DEPENDS="glslang, libandroid-spawn, libc++, lz4, spirv-tools"
+TERMUX_PKG_BUILD_DEPENDS="clang, cmake, git, glm, python, spirv-headers, stb, vulkan-headers, vulkan-loader"
+TERMUX_PKG_CMAKE_BUILD="Unix Makefiles"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DCMAKE_BUILD_TYPE=None
 -DSLANG_VERSION_NUMERIC=$TERMUX_PKG_VERSION
@@ -41,9 +44,10 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DSLANG_OVERRIDE_MINIZ_PATH=$TERMUX_PKG_BUILDDIR
 -DSLANG_OVERRIDE_UNORDERED_DENSE_PATH=$TERMUX_PKG_BUILDDIR
 "
-TERMUX_PKG_CMAKE_BUILD="Unix Makefiles"
-TERMUX_PKG_BUILD_DEPENDS="cmake,git,glm,python,spirv-headers,stb,vulkan-headers,vulkan-loader,clang"
-TERMUX_PKG_DEPENDS="spirv-tools,lz4,glslang,libandroid-spawn"
+# Delete Unix backward compatibility symlink (libslang -> libslang-compiler)
+TERMUX_PKG_RM_AFTER_INSTALL="
+lib/libslang.so
+"
 
 termux_step_post_get_source() {
 	ln -s "$TERMUX_PKG_SRCDIR/lua-$_SLANG_LUA_VERSION"                         "$TERMUX_PKG_BUILDDIR/lua"
@@ -82,10 +86,4 @@ termux_step_post_get_source() {
 	sed -e 's/LINK_WITH_PRIVATE/& android-spawn/' -i source/{core,slang-rt}/CMakeLists.txt
 
 	# TODO cross-compilation: https://github.com/shader-slang/slang/blob/master/docs/building.md
-
-}
-
-termux_step_post_make_install() {
-	# Delete Unix backward compatibility symlink (libslang -> libslang-compiler)
-	rm -f "$TERMUX_PKG_PACKAGEDIR/usr/lib/libslang.so"
 }
