@@ -7,3 +7,4 @@ TERMUX_PKG_SRCURL=https://github.com/openslide/openslide/releases/download/v$TER
 TERMUX_PKG_SHA256=df82f6b264f98d11eeb80d85bbb10c7935fcd69c7abae1d610ce49b9a0437faf
 TERMUX_PKG_DEPENDS="gdk-pixbuf, glib, libcairo, libdicom, libjpeg-turbo, libpng, libsqlite, libtiff, libxml2, openjpeg, zlib"
 TERMUX_PKG_AUTO_UPDATE=true
+
