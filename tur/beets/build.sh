@@ -18,3 +18,4 @@ termux_step_create_debscripts() {
 	LDFLAGS="-lpython$TERMUX_PYTHON_VERSION" MATHLIB="m" pip install --upgrade maturin Cython
 	POSTINST_EOF
 }
+
