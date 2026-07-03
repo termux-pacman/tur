@@ -9,7 +9,8 @@ on:
     paths:
     - '.github/workflows/repo-update.yml'
   schedule:
-    - cron:  '0,30 0-23 * * *'
+    - cron:  '*/30 * * * *'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref_name }}-${{ github.workflow }}
