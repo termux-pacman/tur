@@ -59,3 +59,4 @@ termux_step_make_install() {
 
 	pip install --force-reinstall --no-deps ./target/wheels/*.whl --prefix $TERMUX_PREFIX
 }
+

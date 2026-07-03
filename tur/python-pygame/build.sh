@@ -24,3 +24,4 @@ termux_step_pre_configure() {
 termux_step_make_install() {
 	pip install --no-deps --no-build-isolation . --prefix "$TERMUX_PREFIX"
 }
+

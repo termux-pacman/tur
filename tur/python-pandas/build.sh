@@ -72,3 +72,4 @@ termux_step_make_install() {
 	local _whl="pandas-${TERMUX_PKG_VERSION}-cp$_pyv-cp$_pyv-android_$wheel_arch.whl"
 	pip install --force-reinstall --no-deps --prefix=$TERMUX_PREFIX $TERMUX_PKG_SRCDIR/dist/$_whl
 }
+

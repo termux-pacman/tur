@@ -16,3 +16,4 @@ TERMUX_PKG_SETUP_PYTHON=true
 termux_step_make_install() {
 	pip3 install . --prefix $TERMUX_PREFIX
 }
+
