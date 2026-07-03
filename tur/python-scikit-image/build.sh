@@ -58,4 +58,3 @@ termux_step_make_install() {
 	local _whl="scikit_image-${TERMUX_PKG_VERSION#*:}-cp$_pyv-cp$_pyv-${_target}_$TERMUX_ARCH.whl"
 	pip install --force-reinstall --no-deps --prefix=$TERMUX_PREFIX $TERMUX_PKG_SRCDIR/dist/$_whl
 }
-
