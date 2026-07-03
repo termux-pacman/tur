@@ -19,4 +19,3 @@ termux_step_post_get_source() {
 termux_step_pre_configure() {
 	LDFLAGS+=" -Wl,--no-as-needed -lpython${TERMUX_PYTHON_VERSION}"
 }
-
