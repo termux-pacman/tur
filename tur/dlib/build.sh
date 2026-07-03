@@ -68,4 +68,3 @@ termux_step_make_install() {
 	export PYTHONPATH=$TERMUX_PREFIX/lib/python${TERMUX_PYTHON_VERSION}/site-packages
 	pip install --force-reinstall --no-deps ./dist/*.whl --prefix=$TERMUX_PREFIX
 }
-
