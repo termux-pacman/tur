@@ -20,4 +20,3 @@ termux_step_make_install() {
 	# use --no-build-isolation to ensure the correct numpy installation is detected
 	pip install --no-deps --no-build-isolation . --prefix "$TERMUX_PREFIX"
 }
-
