@@ -1,0 +1,543 @@
+From 829b16e4f096717b831bde3110e06399772be876 Mon Sep 17 00:00:00 2001
+From: Campbell Barton <campbell@blender.org>
+Date: Fri, 18 Oct 2024 12:23:34 +1100
+Subject: [PATCH 1/2] PyAPI: support Python 3.13
+
+- `_PySet_NextEntry` has been removed, use generic iterator access
+  which will has some additional overhead as it needs to create
+  an iterator to access the values.
+
+- Add v3.13 compatibility defines to account for renaming:
+  _PyObject_LookupAttr -> PyObject_GetOptionalAttr
+  _PyLong_AsInt -> PyLong_AsInt
+
+- Unfortunately use of Python's internal API needs to be used to
+  inspect op-codes in `bpy_driver.cc`.
+
+Testing GLTF/FBX IO there isn't any significant performance impact
+from these changes.
+
+Resolves #123871.
+---
+ .../blender/python/bmesh/bmesh_py_ops_call.cc |  16 +-
+ source/blender/python/generic/py_capi_rna.cc  | 140 ++++++++++--------
+ .../blender/python/generic/py_capi_utils.cc   |  56 ++++---
+ source/blender/python/generic/py_capi_utils.h |   4 +
+ source/blender/python/generic/python_compat.h |  10 +-
+ .../blender/python/gpu/gpu_py_framebuffer.cc  |   6 +-
+ source/blender/python/intern/bpy.cc           |  48 +++---
+ source/blender/python/intern/bpy_driver.cc    |  37 ++++-
+ .../python/intern/bpy_library_write.cc        |  15 +-
+ source/blender/python/intern/bpy_rna.cc       |   6 +-
+ 10 files changed, 210 insertions(+), 128 deletions(-)
+
+--- a/source/blender/python/bmesh/bmesh_py_ops_call.c
++++ b/source/blender/python/bmesh/bmesh_py_ops_call.c
+@@ -548,11 +548,12 @@ static int bpy_slot_from_py(BMesh *bm,
+           break;
+         }
+         case BMO_OP_SLOT_SUBTYPE_MAP_EMPTY: {
+-          if (PySet_Size(value) > 0) {
++          if (PySet_GET_SIZE(value) > 0) {
++            PyObject *it = PyObject_GetIter(value);
+             PyObject *arg_key;
+-            Py_ssize_t arg_pos = 0;
+-            Py_ssize_t arg_hash = 0;
+-            while (_PySet_NextEntry(value, &arg_pos, &arg_key, &arg_hash)) {
++            while ((arg_key = PyIter_Next(it))) {
++              /* Borrow from the set. */
++              Py_DECREF(arg_key);
+ 
+               if (bpy_slot_from_py_elem_check((BPy_BMElem *)arg_key,
+                                               bm,
+@@ -561,11 +562,16 @@ static int bpy_slot_from_py(BMesh *bm,
+                                               slot_name,
+                                               "invalid key in set") == -1)
+               {
+-                return -1; /* error is set in bpy_slot_from_py_elem_check() */
++                /* Error is set in #bpy_slot_from_py_elem_check(). */
++                break;
+               }
+ 
+               BMO_slot_map_empty_insert(bmop, slot, ((BPy_BMElem *)arg_key)->ele);
+             }
++            Py_DECREF(it);
++            if (arg_key) {
++              return -1;
++            }
+           }
+           break;
+         }
+--- a/source/blender/python/generic/py_capi_rna.c
++++ b/source/blender/python/generic/py_capi_rna.c
+@@ -74,60 +74,63 @@ BLI_bitmap *pyrna_enum_bitmap_from_set(const EnumPropertyItem *items,
+                                        int bitmap_size,
+                                        const char *error_prefix)
+ {
+-  /* Set looping. */
+-  Py_ssize_t pos = 0;
+-  Py_ssize_t hash = 0;
+-  PyObject *key;
+-
++  BLI_assert(PySet_Check(value));
+   BLI_bitmap *bitmap = BLI_BITMAP_NEW(bitmap_size, __func__);
+
+-  while (_PySet_NextEntry(value, &pos, &key, &hash)) {
+-    const char *param = PyUnicode_AsUTF8(key);
+-    if (param == NULL) {
+-      PyErr_Format(PyExc_TypeError,
+-                   "%.200s expected a string, not %.200s",
+-                   error_prefix,
+-                   Py_TYPE(key)->tp_name);
+-      goto error;
+-    }
+-
+-    int ret;
+-    if (pyrna_enum_value_from_id(items, param, &ret, error_prefix) == -1) {
+-      goto error;
+-    }
+-
+-    int index = ret;
+-
+-    if (type_convert_sign) {
+-      if (type_size == 2) {
+-        union {
+-          signed short as_signed;
+-          ushort as_unsigned;
+-        } ret_convert;
+-        ret_convert.as_signed = (signed short)ret;
+-        index = (int)ret_convert.as_unsigned;
++  if (PySet_GET_SIZE(value) > 0) {
++    /* Set looping. */
++    PyObject *it = PyObject_GetIter(value);
++    PyObject *key;
++    while ((key = PyIter_Next(it))) {
++      /* Borrow from the set. */
++      Py_DECREF(key);
++      const char *param = PyUnicode_AsUTF8(key);
++      if (param == NULL) {
++        PyErr_Format(PyExc_TypeError,
++                     "%.200s expected a string, not %.200s",
++                     error_prefix,
++                     Py_TYPE(key)->tp_name);
++        break;
+       }
+-      else if (type_size == 1) {
+-        union {
+-          signed char as_signed;
+-          uchar as_unsigned;
+-        } ret_convert;
+-        ret_convert.as_signed = (signed char)ret;
+-        index = (int)ret_convert.as_unsigned;
++
++      int ret;
++      if (pyrna_enum_value_from_id(items, param, &ret, error_prefix) == -1) {
++        break;
+       }
+-      else {
+-        BLI_assert_unreachable();
++      int index = ret;
++
++      if (type_convert_sign) {
++        if (type_size == 2) {
++          union {
++            signed short as_signed;
++            ushort as_unsigned;
++          } ret_convert;
++          ret_convert.as_signed = (signed short)ret;
++          index = (int)ret_convert.as_unsigned;
++        }
++        else if (type_size == 1) {
++          union {
++            signed char as_signed;
++            uchar as_unsigned;
++          } ret_convert;
++          ret_convert.as_signed = (signed char)ret;
++          index = (int)ret_convert.as_unsigned;
++        }
++        else {
++          BLI_assert_unreachable();
++        }
+       }
++      BLI_assert(index < bitmap_size);
++      BLI_BITMAP_ENABLE(bitmap, index);
++    }
++    Py_DECREF(it);
++
++    if (key) {
++      MEM_freeN(bitmap);
+     }
+-    BLI_assert(index < bitmap_size);
+-    BLI_BITMAP_ENABLE(bitmap, index);
+   }
+
+   return bitmap;
+-
+-error:
+-  MEM_freeN(bitmap);
+-  return NULL;
+ }
+
+ int pyrna_enum_bitfield_from_set(const EnumPropertyItem *items,
+@@ -135,32 +138,40 @@ int pyrna_enum_bitfield_from_set(const EnumPropertyItem *items,
+                                  int *r_value,
+                                  const char *error_prefix)
+ {
++  BLI_assert(PySet_Check(value));
+   /* Set of enum items, concatenate all values with OR. */
+-  int ret, flag = 0;
+-
+-  /* Set looping. */
+-  Py_ssize_t pos = 0;
+-  Py_ssize_t hash = 0;
+-  PyObject *key;
++  int flag = 0;
+
+   *r_value = 0;
+
+-  while (_PySet_NextEntry(value, &pos, &key, &hash)) {
+-    const char *param = PyUnicode_AsUTF8(key);
++  PyObject *key = NULL;
++  if (PySet_GET_SIZE(value) > 0) {
++    /* Set looping. */
++    PyObject *it = PyObject_GetIter(value);
++    while ((key = PyIter_Next(it))) {
++      /* Borrow from the set. */
++      Py_DECREF(key);
++
++      const char *param = PyUnicode_AsUTF8(key);
++      if (param == NULL) {
++        PyErr_Format(PyExc_TypeError,
++                     "%.200s expected a string, not %.200s",
++                     error_prefix,
++                     Py_TYPE(key)->tp_name);
++        break;
++      }
+
+-    if (param == NULL) {
+-      PyErr_Format(PyExc_TypeError,
+-                   "%.200s expected a string, not %.200s",
+-                   error_prefix,
+-                   Py_TYPE(key)->tp_name);
+-      return -1;
+-    }
++      int ret;
++      if (pyrna_enum_value_from_id(items, param, &ret, error_prefix) == -1) {
++        break;
++      }
+
+-    if (pyrna_enum_value_from_id(items, param, &ret, error_prefix) == -1) {
++      flag |= ret;
++    }
++    Py_DECREF(it);
++    if (key) {
+       return -1;
+     }
+-
+-    flag |= ret;
+   }
+
+   *r_value = flag;
+--- a/source/blender/python/generic/py_capi_utils.c
++++ b/source/blender/python/generic/py_capi_utils.c
+@@ -39,6 +39,11 @@
+ #  include "BLI_math_base.h" /* isfinite() */
+ #endif
+ 
++#if PY_VERSION_HEX <= 0x030c0000 /* <=3.12 */
++#  define PyLong_AsInt _PyLong_AsInt
++#  define PyUnicode_CompareWithASCIIString _PyUnicode_EqualToASCIIString
++#endif
++
+ /* -------------------------------------------------------------------- */
+ /** \name Fast Python to C Array Conversion for Primitive Types
+  * \{ */
+@@ -874,10 +879,12 @@ static void pyc_exception_buffer_handle_system_exit()
+   if (!PyErr_ExceptionMatches(PyExc_SystemExit)) {
+     return;
+   }
+-  /* Inspecting, follow Python's logic in #_Py_HandleSystemExit & treat as a regular exception. */
++/* Inspecting, follow Python's logic in #_Py_HandleSystemExit & treat as a regular exception. */
++#  if 0 /* FIXME: */
+   if (_Py_GetConfig()->inspect) {
+     return;
+   }
++#  endif
+ 
+   /* NOTE(@ideasman42): A `SystemExit` exception will exit immediately (unless inspecting).
+    * So print the error and exit now. Without this #PyErr_Display shows the error stack-trace
+@@ -1425,11 +1432,6 @@ int PyC_FlagSet_ToBitfield(const PyC_FlagSet *items,
+   /* set of enum items, concatenate all values with OR */
+   int ret, flag = 0;
+ 
+-  /* set looping */
+-  Py_ssize_t pos = 0;
+-  Py_ssize_t hash = 0;
+-  PyObject *key;
+-
+   if (!PySet_Check(value)) {
+     PyErr_Format(PyExc_TypeError,
+                  "%.200s expected a set, not %.200s",
+@@ -1440,22 +1440,33 @@ int PyC_FlagSet_ToBitfield(const PyC_FlagSet *items,
+
+   *r_value = 0;
+
+-  while (_PySet_NextEntry(value, &pos, &key, &hash)) {
+-    const char *param = PyUnicode_AsUTF8(key);
+
+-    if (param == NULL) {
+-      PyErr_Format(PyExc_TypeError,
+-                   "%.200s set must contain strings, not %.200s",
+-                   error_prefix,
+-                   Py_TYPE(key)->tp_name);
+-      return -1;
+-    }
++  if (PySet_GET_SIZE(value) > 0) {
++    PyObject *it = PyObject_GetIter(value);
++    PyObject *key;
++    while ((key = PyIter_Next(it))) {
++      /* Borrow from the set. */
++      Py_DECREF(key);
++
++      const char *param = PyUnicode_AsUTF8(key);
++      if (param == NULL) {
++        PyErr_Format(PyExc_TypeError,
++                     "%.200s set must contain strings, not %.200s",
++                     error_prefix,
++                     Py_TYPE(key)->tp_name);
++        break;
++      }
+
+-    if (PyC_FlagSet_ValueFromID(items, param, &ret, error_prefix) < 0) {
++      if (PyC_FlagSet_ValueFromID(items, param, &ret, error_prefix) < 0) {
++        break;
++      }
++
++      flag |= ret;
++    }
++    Py_DECREF(it);
++    if (key != NULL) {
+       return -1;
+     }
+-
+-    flag |= ret;
+   }
+
+   *r_value = flag;
+@@ -1725,7 +1737,7 @@ static ulong pyc_Long_AsUnsignedLong(PyObject *value)
+ 
+ int PyC_Long_AsBool(PyObject *value)
+ {
+-  const int test = _PyLong_AsInt(value);
++  const int test = PyLong_AsInt(value);
+   if (UNLIKELY(test == -1 && PyErr_Occurred())) {
+     return -1;
+   }
+@@ -1738,7 +1750,7 @@ int PyC_Long_AsBool(PyObject *value)
+ 
+ int8_t PyC_Long_AsI8(PyObject *value)
+ {
+-  const int test = _PyLong_AsInt(value);
++  const int test = PyLong_AsInt(value);
+   if (UNLIKELY(test == -1 && PyErr_Occurred())) {
+     return -1;
+   }
+@@ -1751,7 +1763,7 @@ int8_t PyC_Long_AsI8(PyObject *value)
+ 
+ int16_t PyC_Long_AsI16(PyObject *value)
+ {
+-  const int test = _PyLong_AsInt(value);
++  const int test = PyLong_AsInt(value);
+   if (UNLIKELY(test == -1 && PyErr_Occurred())) {
+     return -1;
+   }
+--- a/source/blender/python/generic/py_capi_utils.h
++++ b/source/blender/python/generic/py_capi_utils.h
+@@ -342,7 +342,11 @@ uint64_t PyC_Long_AsU64(PyObject *value);
+ /* inline so type signatures match as expected */
+ Py_LOCAL_INLINE(int32_t) PyC_Long_AsI32(PyObject *value)
+ {
++#if PY_VERSION_HEX <= 0x030c0000 /* <=3.12 */
+   return (int32_t)_PyLong_AsInt(value);
++#else
++  return (int32_t)PyLong_AsInt(value);
++#endif
+ }
+ Py_LOCAL_INLINE(int64_t) PyC_Long_AsI64(PyObject *value)
+ {
+diff --git a/source/blender/python/generic/python_compat.h b/source/blender/python/generic/python_compat.h
+index df4eedc445b..0e4f57f509c 100644
+--- a/source/blender/python/generic/python_compat.h
++++ b/source/blender/python/generic/python_compat.h
+@@ -13,13 +13,21 @@
+ extern "C" {
+ #endif
+ 
++/* Removes `intialized` member from Python 3.13+. */
++#if PY_VERSION_HEX >= 0x030d0000
++#  define PY_ARG_PARSER_HEAD_COMPAT()
++#elif PY_VERSION_HEX >= 0x030c0000
+ /* Add `intialized` member for Python 3.12+. */
+-#if PY_VERSION_HEX >= 0x030c0000
+ #  define PY_ARG_PARSER_HEAD_COMPAT() 0,
+ #else
+ #  define PY_ARG_PARSER_HEAD_COMPAT()
+ #endif
+ 
++/* Python 3.13 made some changes, use the "new" names. */
++#if PY_VERSION_HEX < 0x030d0000
++#  define PyObject_GetOptionalAttr _PyObject_LookupAttr
++#endif
++
+ #ifdef __cplusplus
+ }
+ #endif
+--- a/source/blender/python/gpu/gpu_py_framebuffer.c
++++ b/source/blender/python/gpu/gpu_py_framebuffer.c
+@@ -286,14 +286,14 @@ static bool pygpu_framebuffer_new_parse_arg(PyObject *o, GPUAttachment *r_attach
+         return false;
+       }
+
+-      if (c_texture && _PyUnicode_EqualToASCIIString(key, c_texture)) {
++      if (c_texture && PyUnicode_CompareWithASCIIString(key, c_texture)) {
+         /* Compare only once. */
+         c_texture = NULL;
+         if (!bpygpu_ParseTexture(value, &tmp_attach.tex)) {
+           return false;
+         }
+       }
+-      else if (c_layer && _PyUnicode_EqualToASCIIString(key, c_layer)) {
++      else if (c_layer && PyUnicode_CompareWithASCIIString(key, c_layer)) {
+         /* Compare only once. */
+         c_layer = NULL;
+         tmp_attach.layer = PyLong_AsLong(value);
+@@ -301,7 +301,7 @@ static bool pygpu_framebuffer_new_parse_arg(PyObject *o, GPUAttachment *r_attach
+           return false;
+         }
+       }
+-      else if (c_mip && _PyUnicode_EqualToASCIIString(key, c_mip)) {
++      else if (c_mip && PyUnicode_CompareWithASCIIString(key, c_mip)) {
+         /* Compare only once. */
+         c_mip = nullptr;
+         tmp_attach.mip = PyLong_AsLong(value);
+--- a/source/blender/python/intern/bpy_driver.c
++++ b/source/blender/python/intern/bpy_driver.c
+@@ -42,6 +42,13 @@
+ #  include <opcode.h>
+ #endif
+ 
++#if PY_VERSION_HEX >= 0x030d0000 /* >=3.13 */
++/* WARNING(@ideasman42): Using `Py_BUILD_CORE` is a last resort,
++ * the alternative would be not to inspect OP-CODES at all. */
++#  define Py_BUILD_CORE
++#  include <internal/pycore_code.h>
++#endif
++
+ PyObject *bpy_pydriver_Dict = NULL;
+ 
+ #ifdef USE_BYTECODE_WHITELIST
+@@ -373,7 +380,36 @@ static const bool secure_opcodes[255] = {
+     OK_OP(LOAD_CONST), /* Ok because constants are accepted. */
+     OK_OP(LOAD_NAME),  /* Ok, because `PyCodeObject.names` is checked. */
+     OK_OP(CALL),       /* Ok, because we check its "name" before calling. */
+-    OK_OP(KW_NAMES),   /* Ok, because it's used for calling functions with keyword arguments. */
++#  if PY_VERSION_HEX >= 0x030d0000
++    OK_OP(CALL_KW), /* Ok, because it's used for calling functions with keyword arguments. */
++
++    OK_OP(CALL_FUNCTION_EX),
++
++    /* OK because the names are checked. */
++    OK_OP(CALL_ALLOC_AND_ENTER_INIT),
++    OK_OP(CALL_BOUND_METHOD_EXACT_ARGS),
++    OK_OP(CALL_BOUND_METHOD_GENERAL),
++    OK_OP(CALL_BUILTIN_CLASS),
++    OK_OP(CALL_BUILTIN_FAST),
++    OK_OP(CALL_BUILTIN_FAST_WITH_KEYWORDS),
++    OK_OP(CALL_BUILTIN_O),
++    OK_OP(CALL_ISINSTANCE),
++    OK_OP(CALL_LEN),
++    OK_OP(CALL_LIST_APPEND),
++    OK_OP(CALL_METHOD_DESCRIPTOR_FAST),
++    OK_OP(CALL_METHOD_DESCRIPTOR_FAST_WITH_KEYWORDS),
++    OK_OP(CALL_METHOD_DESCRIPTOR_NOARGS),
++    OK_OP(CALL_METHOD_DESCRIPTOR_O),
++    OK_OP(CALL_NON_PY_GENERAL),
++    OK_OP(CALL_PY_EXACT_ARGS),
++    OK_OP(CALL_PY_GENERAL),
++    OK_OP(CALL_STR_1),
++    OK_OP(CALL_TUPLE_1),
++    OK_OP(CALL_TYPE_1),
++#  else
++    OK_OP(KW_NAMES), /* Ok, because it's used for calling functions with keyword arguments. */
++#  endif
++
+ #    if PY_VERSION_HEX < 0x030c0000
+     OK_OP(PRECALL),    /* Ok, because it's used for calling. */
+ #    endif
+--- a/source/blender/python/intern/bpy_library_write.c
++++ b/source/blender/python/intern/bpy_library_write.c
+@@ -136,17 +136,17 @@ static PyObject *bpy_lib_write(BPy_PropertyRNA *self, PyObject *args, PyObject *
+   PyObject *ret;
+
+   /* collect all id data from the set and store in 'id_store_array' */
+-  {
+-    Py_ssize_t pos, hash;
+-    PyObject *key;
+-
++  if (PySet_GET_SIZE(datablocks) > 0) {
+     id_store_array = MEM_mallocN(sizeof(*id_store_array) * PySet_Size(datablocks), __func__);
+     id_store = id_store_array;
+
+-    pos = hash = 0;
+-    while (_PySet_NextEntry(datablocks, &pos, &key, &hash)) {
+-
++    PyObject *it = PyObject_GetIter(datablocks);
++    PyObject *key;
++    while ((key = PyIter_Next(it))) {
++      /* Borrow from the set. */
++      Py_DECREF(key);
+       if (!pyrna_id_FromPyObject(key, &id_store->id)) {
++        Py_DECREF(it);
+         PyErr_Format(PyExc_TypeError, "Expected an ID type, not %.200s", Py_TYPE(key)->tp_name);
+         ret = NULL;
+         goto finally;
+@@ -174,6 +174,7 @@ static PyObject *bpy_lib_write(BPy_PropertyRNA *self, PyObject *args, PyObject *
+         id_store++;
+       }
+     }
++    Py_DECREF(it);
+   }
+ 
+   /* write blend */
+--- a/source/blender/python/intern/bpy_rna.c
++++ b/source/blender/python/intern/bpy_rna.c
+@@ -8572,7 +8572,7 @@ static int bpy_class_validate_recursive(PointerRNA *dummy_ptr,
+       continue;
+     }
+ 
+-    /* TODO(@ideasman42): Use Python3.7x _PyObject_LookupAttr(), also in the macro below. */
++    /* TODO(@ideasman42): Use #PyObject_GetOptionalAttr(), also in the macro below. */
+     identifier = RNA_property_identifier(prop);
+     item = PyObject_GetAttrString(py_class, identifier);
+ 
+@@ -9205,7 +9205,7 @@ static PyObject *pyrna_register_class(PyObject * /*self*/, PyObject *py_class)
+ 
+   /* Call classed register method.
+    * Note that zero falls through, no attribute, no error. */
+-  switch (_PyObject_LookupAttr(py_class, bpy_intern_str_register, &py_cls_meth)) {
++  switch (PyObject_GetOptionalAttr(py_class, bpy_intern_str_register, &py_cls_meth)) {
+     case 1: {
+       PyObject *ret = PyObject_CallObject(py_cls_meth, nullptr);
+       Py_DECREF(py_cls_meth);
+@@ -9320,7 +9320,7 @@ static PyObject *pyrna_unregister_class(PyObject * /*self*/, PyObject *py_class)
+ 
+   /* Call classed unregister method.
+    * Note that zero falls through, no attribute, no error. */
+-  switch (_PyObject_LookupAttr(py_class, bpy_intern_str_unregister, &py_cls_meth)) {
++  switch (PyObject_GetOptionalAttr(py_class, bpy_intern_str_unregister, &py_cls_meth)) {
+     case 1: {
+       PyObject *ret = PyObject_CallObject(py_cls_meth, nullptr);
+       Py_DECREF(py_cls_meth);
+-- 
+2.49.1
+
