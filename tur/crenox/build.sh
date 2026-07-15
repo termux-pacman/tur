@@ -23,4 +23,3 @@ termux_step_make_install() {
 	# Install the binary to the Termux system bin prefix
 	install -Dm700 "$TERMUX_PKG_SRCDIR/crenox" "$TERMUX_PREFIX"/bin/crenox
 }
-
