@@ -22,3 +22,4 @@ termux_step_pre_configure() {
 	echo "" > $TERMUX_PKG_TMPDIR/dummy-include/sys/ucontext.h
 	CPPFLAGS+=" -I$TERMUX_PKG_TMPDIR/dummy-include"
 }
+
