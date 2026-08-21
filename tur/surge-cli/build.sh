@@ -22,4 +22,3 @@ termux_step_make() {
 termux_step_make_install() {
 	install -Dm755 "$TERMUX_PKG_SRCDIR/surge" "${TERMUX_PREFIX}/bin/surge"
 }
-
