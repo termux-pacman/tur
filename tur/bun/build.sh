@@ -45,3 +45,4 @@ termux_step_make_install() {
 
 	install -Dm755 "$_bun_bin" "$TERMUX_PREFIX/bin/bun"
 }
+
