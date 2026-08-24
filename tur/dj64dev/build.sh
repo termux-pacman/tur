@@ -24,4 +24,3 @@ termux_step_pre_configure() {
 	cd "$TERMUX_PKG_SRCDIR"
 	autoreconf -v -i -I m4
 }
-
