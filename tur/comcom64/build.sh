@@ -25,3 +25,4 @@ termux_step_make() {
 termux_step_make_install() {
 	make install_64 prefix="$TERMUX_PREFIX"
 }
+
