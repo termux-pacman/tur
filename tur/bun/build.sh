@@ -53,3 +53,4 @@ termux_step_make_install() {
 	install -Dm755 "$TERMUX_PKG_HOSTBUILD_DIR/bun" "$TERMUX_PREFIX/bin/bun"
 	ln -sf bun "$TERMUX_PREFIX/bin/bunx"
 }
+
