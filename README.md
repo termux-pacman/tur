@@ -1,4 +1,4 @@
-# Termux User Repository (TUR) for pacman - official git repo mirror
+# Termux User Repository (TUR) for pacman - git repo mirror
 ![GitHub repo size](https://img.shields.io/github/repo-size/termux-pacman/tur)
 ![Packages-tur last build status](https://github.com/termux-pacman/tur/workflows/Packages-tur/badge.svg)
 ![Packages-tur-continuous last build status](https://github.com/termux-pacman/tur/workflows/Packages-tur-continuous/badge.svg)
@@ -25,7 +25,5 @@ Server = https://service.termux-pacman.dev/tur-multilib/$arch
 ### Other information:
  - Android support: 7+
  - Architecture support: all (aarch64, arm, x86_64, i686)
- - Signature: termux-pacman organization gpg key
- - Powered by aws
  - Root repository: https://github.com/termux-user-repository/tur
  - Organization maintaining the root repository: [termux-user-repository](https://github.com/termux-user-repository)
