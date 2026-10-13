@@ -40,4 +40,3 @@ termux_step_make_install() {
 	EOL
 	chmod 0755 "${TERMUX_PREFIX}/bin/${TERMUX_PKG_NAME}"
 }
-
