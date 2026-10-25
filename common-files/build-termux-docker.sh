@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-: ${TERMUX_BUILDER_IMAGE_NAME:="termux/termux-docker:$ARCH"}
+: ${TERMUX_BUILDER_IMAGE_NAME:="termux/termux-docker-pacman:$ARCH"}
 : ${CONTAINER_NAME:="termux-$ARCH"}
 
 CONTAINER_HOME_DIR=/data/data/com.termux/files/home
