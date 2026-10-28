@@ -46,4 +46,3 @@ termux_step_make_install() {
 	# Remove debug files
 	rm -f "${TERMUX_PREFIX}/lib/${TERMUX_PKG_NAME}"/*.pdb
 }
-
