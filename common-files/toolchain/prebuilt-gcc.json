@@ -1,22 +1,22 @@
 {
   "16": {
-    "version": "16.1.0",
+    "version": "16.2.0",
     "revision": "0",
     "checksums": {
-      "aarch64": "21efd7dccd230c9c919f7bb1b69e3236b29827fbda4fff161672397fff61546f",
-      "arm": "95ed12fc305c596cc345e85ecb299265ccd3d19e2a9403241d6e50fdc70bdbc5",
-      "i686": "10d54dafa62e086bea2afe252430349a5a46ba0378a94c39dc0e017d0055f547",
-      "x86_64": "5de8dac6849c25cdf73e51fa341d3a56de08208c8a93421b6012c1bb7b55e944"
+      "aarch64": "b1836a23368c6afaa9462d862099604684b9a0e432f45387e4b13fd5321997b3",
+      "arm": "70b4a0ddf857f879dbbae838ea4ff46d5fed076f90c2d446b6b9c726fb1a9419",
+      "i686": "9146a47ae39e7707b37fb806447503bc4e5edb6f8249e524c6848cf12e494a4d",
+      "x86_64": "be50afc64d14096ab8b631705a55ddabeff6ade44ba7a1b95a3dc59097a9bbe3"
     }
   },
   "15": {
-    "version": "15.2.0",
+    "version": "15.3.0",
     "revision": "0",
     "checksums": {
-      "aarch64": "f086c76b949f7cd1c0736b35d549312cd297cb4b54741a749c5fe1f1201d9db1",
-      "arm": "ac4d02171f5fb9300f97bebd4403398ac64f098f9c01e447abd116b95880e4ff",
-      "i686": "fba7426f4091ec7a228d08b8cc1774e75337183cc962eb6edcccc2f89eb6d5bf",
-      "x86_64": "14562d541388cad1f32e60fca49e01fdc6cbd5496c5e18fbb95e00e6e3a16bdf"
+      "aarch64": "3ede875d7b13a74b9e39ff96f45565fb1551a18064db35cfdddb0d9b79ddcea6",
+      "arm": "0a6adf7cf23e9818293261b6f0ca283f17bf4fd334dbd0505ddee46116d000f5",
+      "i686": "ee6b6f0a853c057f3315c5ebf982bf689d139c9eb405dc37d9b9597104406787",
+      "x86_64": "5e85cb77dc0de46deeb462ac7654804b3682d89c1fba1b34bb9ca1c5a0177523"
     }
   },
   "14": {
