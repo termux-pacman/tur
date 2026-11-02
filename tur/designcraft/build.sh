@@ -100,3 +100,4 @@ termux_step_make_install() {
 	install -Dm644 README.md \
 		"$TERMUX_PREFIX/share/doc/$TERMUX_PKG_NAME/README.md"
 }
+
