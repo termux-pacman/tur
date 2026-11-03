@@ -73,4 +73,3 @@ termux_step_make_install() {
 		"$_whl_dest" \
 		--prefix "$TERMUX_PREFIX"
 }
-
