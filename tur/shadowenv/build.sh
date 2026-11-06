@@ -40,3 +40,4 @@ termux_step_make_install() {
 	install -Dm600 sh/completions/shadowenv.elv \
 		"$TERMUX_PREFIX/share/elvish/lib/shadowenv.elv"
 }
+
