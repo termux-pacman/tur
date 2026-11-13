@@ -27,3 +27,4 @@ termux_step_configure() {
 		--with-sdl-prefix="$TERMUX_PREFIX" \
 		$TERMUX_PKG_EXTRA_CONFIGURE_ARGS
 }
+
